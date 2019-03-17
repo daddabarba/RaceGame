@@ -48,37 +48,65 @@ class RaceGame(Game):
 
 		self.__cars = []
 		self.__walls = []
-		#self.__walls = [
-			#Wall(np.array([0,0]), self.getWin().get_width(), 0),
-			#Wall(np.array([0,0]), self.getWin().get_height(), 1),
-			#Wall(np.array([self.getWin().get_width(), self.getWin().get_height()]), -self.getWin().get_width(), 0),
-			#Wall(np.array([self.getWin().get_width(), self.getWin().get_height()]), -self.getWin().get_height(), 1),
-		#]
 
 		square_size = int(self.getWin().get_width()/map["size"][0])
-		self.__last = None
+		self.__start_position = (np.array([square_size*(map["trajectory"][0][0]+1), square_size*(map["trajectory"][0][1]+1)]) - square_size/2).astype(int)
 
-		for x in range(map["size"][0]):
-			for y in range(map["size"][1]):
-				if map["grid"][y][x]:
+		trajectory = map["trajectory"][0:1]
+		
+		for k in range(len(map["trajectory"])):
 
-					ul = np.array([square_size*x, square_size*y])
-					dr = np.array([square_size*(x+1), square_size*(y+1)])
+			cell = map["trajectory"][np.mod(k+1, len(map["trajectory"]))]
 
-					self.__last = (dr - square_size/2).astype(int)
+			if trajectory[-1][0] == cell[0]:
+				if cell[1] - trajectory[-1][1] > 1:
+					for i in range(cell[1] - trajectory[-1][1]):
+						trajectory.append((trajectory[-1][0],trajectory[-1][1]+1))
+					continue;
+				elif cell[1] - trajectory[-1][1] < -1:
+					for i in range(trajectory[-1][1] - cell[1]):
+						trajectory.append((trajectory[-1][0],trajectory[-1][1]-1))
+					continue;
+				else:
+					trajectory.append(cell)
+					continue;
 
-					if x==0 or not map["grid"][y][x-1]:
-						self.__walls.append(Wall(ul, square_size, 1))
+			if trajectory[-1][1] == cell[1]:
+				if cell[0] - trajectory[-1][0] > 1:
+					for i in range(cell[0] - trajectory[-1][0]):
+						trajectory.append((trajectory[-1][0]+1,trajectory[-1][1]))
+					continue;
+				elif cell[0] - trajectory[-1][0] < -1:
+					for i in range(trajectory[-1][0] - cell[0]):
+						trajectory.append((trajectory[-1][0]-1,trajectory[-1][1]))
+					continue;
+				else:
+					trajectory.append(cell)
+					continue;
 
-					if x==(map["size"][0]-1) or not map["grid"][y][x+1]:
-						self.__walls.append(Wall(dr, -square_size, 1))
+		trajectory = trajectory[0:len(trajectory)-1]
 
-					if y==0 or not map["grid"][y-1][x]:
-						self.__walls.append(Wall(ul, square_size, 0))
+		for i in range(len(trajectory)):
+			
+			cp = trajectory[i]
+			pred = trajectory[i-1]
+			succ = trajectory[np.mod(i+1,len(trajectory))]
 
-					if y==(map["size"][1]-1) or not map["grid"][y+1][x]:
-						self.__walls.append(Wall(dr, -square_size, 0))
-						
+			ul = np.array([square_size*cp[0], square_size*cp[1]])
+			dr = np.array([square_size*(cp[0]+1), square_size*(cp[1]+1)])
+
+			if not (cp[1]==pred[1] and pred[0]<cp[0]) and not(cp[1]==succ[1] and succ[0]<cp[0]):
+				self.__walls.append(Wall(ul, square_size, 1))
+
+			if not (cp[1]==pred[1] and pred[0]>cp[0]) and not(cp[1]==succ[1] and succ[0]>cp[0]):
+				self.__walls.append(Wall(dr, -square_size, 1))
+
+			if not (cp[0]==pred[0] and pred[1]<cp[1]) and not(cp[0]==succ[0] and succ[1]<cp[1]):
+				self.__walls.append(Wall(ul, square_size, 0))
+
+			if not (cp[0]==pred[0] and pred[1]>cp[1]) and not(cp[0]==succ[0] and succ[1]>cp[1]):
+				self.__walls.append(Wall(dr, -square_size, 0))
+				
 
 		for wall in self.__walls:
 			wall.setWindow(self.getWin())
@@ -95,7 +123,7 @@ class RaceGame(Game):
 		for car in cars:
 			self.__cars.append(car)
 			car.setWindow(self.getWin())
-			car.setPosition(self.__last)
+			car.setPosition(self.__start_position)
 
 
 class Car:
@@ -260,7 +288,7 @@ def main():
 	map = {}
 
 	map["size"] = (5,5)
-	map["grid"] = [[True, True, True, False, False], [True, False, True, False, False], [True, False, True, True, True], [True, False, False, False, True], [True, True, True, True, True]]
+	map["trajectory"] = [(4,4),(4,2),(2,2),(2,0),(0,0),(0,4)]
 
 	game = RaceGame(map)
 
