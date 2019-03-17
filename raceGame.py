@@ -26,7 +26,7 @@ class Game:
 					run = False
 					continue
 
-			self.__win.fill((0,0,0))
+			self.__win.fill((150, 150, 150))
 			self.render()
 
 			pg.display.update()
@@ -73,7 +73,7 @@ class RaceGame(Game):
 
 class Car:
 
-	def __init__(self, radius, initial_position, initial_direction = (0, 1), color = (255,0,0)):
+	def __init__(self, radius, initial_position, initial_direction = (0, 1), color = (0,0,0)):
 
 		self.__radius = radius
 		self.__position = np.array(initial_position)
