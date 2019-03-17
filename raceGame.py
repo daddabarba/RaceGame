@@ -43,16 +43,42 @@ class Game:
 
 class RaceGame(Game):
 
-	def __init__(self):
+	def __init__(self, map):
 		super(RaceGame, self).__init__()
 
 		self.__cars = []
-		self.__walls = [
-			Wall(np.array([0,0]), self.getWin().get_width(), 0),
-			Wall(np.array([0,0]), self.getWin().get_height(), 1),
-			Wall(np.array([self.getWin().get_width(), self.getWin().get_height()]), -self.getWin().get_width(), 0),
-			Wall(np.array([self.getWin().get_width(), self.getWin().get_height()]), -self.getWin().get_height(), 1),
-		]
+		self.__walls = []
+		#self.__walls = [
+			#Wall(np.array([0,0]), self.getWin().get_width(), 0),
+			#Wall(np.array([0,0]), self.getWin().get_height(), 1),
+			#Wall(np.array([self.getWin().get_width(), self.getWin().get_height()]), -self.getWin().get_width(), 0),
+			#Wall(np.array([self.getWin().get_width(), self.getWin().get_height()]), -self.getWin().get_height(), 1),
+		#]
+
+		square_size = int(self.getWin().get_width()/map["size"][0])
+		self.__last = None
+
+		for x in range(map["size"][0]):
+			for y in range(map["size"][1]):
+				if map["grid"][y][x]:
+
+					ul = np.array([square_size*x, square_size*y])
+					dr = np.array([square_size*(x+1), square_size*(y+1)])
+
+					self.__last = (dr - square_size/2).astype(int)
+
+					if x==0 or not map["grid"][y][x-1]:
+						self.__walls.append(Wall(ul, square_size, 1))
+
+					if x==(map["size"][0]-1) or not map["grid"][y][x+1]:
+						self.__walls.append(Wall(dr, -square_size, 1))
+
+					if y==0 or not map["grid"][y-1][x]:
+						self.__walls.append(Wall(ul, square_size, 0))
+
+					if y==(map["size"][1]-1) or not map["grid"][y+1][x]:
+						self.__walls.append(Wall(dr, -square_size, 0))
+						
 
 		for wall in self.__walls:
 			wall.setWindow(self.getWin())
@@ -69,6 +95,7 @@ class RaceGame(Game):
 		for car in cars:
 			self.__cars.append(car)
 			car.setWindow(self.getWin())
+			car.setPosition(self.__last)
 
 
 class Car:
@@ -103,6 +130,9 @@ class Car:
 
 	def setWindow(self, window):
 		self.__win = window
+
+	def setPosition(self, position):
+		self.__position = np.array(position)
 
 	def handle_events(self, walls):
 
@@ -227,7 +257,12 @@ class Wall:
 
 def main():
 
-	game = RaceGame()
+	map = {}
+
+	map["size"] = (5,5)
+	map["grid"] = [[True, True, True, False, False], [True, False, True, False, False], [True, False, True, True, True], [True, False, False, False, True], [True, True, True, True, True]]
+
+	game = RaceGame(map)
 
 	car = Car(50, (500,500))
 
