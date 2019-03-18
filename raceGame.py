@@ -60,39 +60,7 @@ class RaceGame(Game):
 		square_size = int(self.getWin().get_width()/map["size"][0])
 		self.__start_position = (np.array([square_size*(map["trajectory"][0][0]+1), square_size*(map["trajectory"][0][1]+1)]) - square_size/2).astype(int)
 
-		trajectory = map["trajectory"][0:1]
-		
-		for k in range(len(map["trajectory"])):
-
-			cell = map["trajectory"][np.mod(k+1, len(map["trajectory"]))]
-
-			if trajectory[-1][0] == cell[0]:
-				if cell[1] - trajectory[-1][1] > 1:
-					for i in range(cell[1] - trajectory[-1][1]):
-						trajectory.append((trajectory[-1][0],trajectory[-1][1]+1))
-					continue;
-				elif cell[1] - trajectory[-1][1] < -1:
-					for i in range(trajectory[-1][1] - cell[1]):
-						trajectory.append((trajectory[-1][0],trajectory[-1][1]-1))
-					continue;
-				else:
-					trajectory.append(cell)
-					continue;
-
-			if trajectory[-1][1] == cell[1]:
-				if cell[0] - trajectory[-1][0] > 1:
-					for i in range(cell[0] - trajectory[-1][0]):
-						trajectory.append((trajectory[-1][0]+1,trajectory[-1][1]))
-					continue;
-				elif cell[0] - trajectory[-1][0] < -1:
-					for i in range(trajectory[-1][0] - cell[0]):
-						trajectory.append((trajectory[-1][0]-1,trajectory[-1][1]))
-					continue;
-				else:
-					trajectory.append(cell)
-					continue;
-
-		trajectory = trajectory[0:len(trajectory)-1]
+		trajectory = map["trajectory"]
 
 		for i in range(len(trajectory)):
 			
