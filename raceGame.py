@@ -3,6 +3,8 @@ import copy
 
 import numpy as np
 
+import generatePath as gen
+
 class Game:
 
 	def __init__(self):
@@ -285,10 +287,16 @@ class Wall:
 
 def main():
 
+	size = 5
 	map = {}
+	map["size"] = (size,size)
+	
+	# map["trajectory"] = [(4,4),(4,2),(2,2),(2,0),(0,0),(0,4)]
+	# map["trajectory"] = [(4,4),(4,3),(2,3),(2,0),(0,0),(0,4)]
+	# map["trajectory"] = [(1, 2), (1, 3), (0, 3), (0, 4), (1, 4), (2, 4), (2, 3), (3, 3), (4, 3), (4, 2), (4, 1), (3, 1), (3, 2)]
+	# map["trajectory"] = [(2, 0), (1, 0), (1, 1), (1, 2), (2, 2), (2, 3), (1, 3), (0, 3), (0, 4), (1, 4), (2, 4), (3, 4), (4, 4), (4, 3), (3, 3), (3, 2), (4, 2), (4, 1), (4, 0)]
 
-	map["size"] = (5,5)
-	map["trajectory"] = [(4,4),(4,2),(2,2),(2,0),(0,0),(0,4)]
+	map["trajectory"] = gen.generateTrack(size)
 
 	game = RaceGame(map)
 
