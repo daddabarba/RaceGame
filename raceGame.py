@@ -5,6 +5,11 @@ import numpy as np
 
 import generatePath as gen
 
+CAR_DEF_COL = (0,0,0)
+WALL_DEF_COL = (255,0,0)
+BG_DEF_COL = (150, 150, 150)
+TRACK_DEF_COL = (0, 150, 0)
+
 class Game:
 
 	def __init__(self):
@@ -28,7 +33,7 @@ class Game:
 					run = False
 					continue
 
-			self.__win.fill((150, 150, 150))
+			self.__win.fill(BG_DEF_COL)
 			self.render()
 
 			pg.display.update()
@@ -50,6 +55,7 @@ class RaceGame(Game):
 
 		self.__cars = []
 		self.__walls = []
+		self.__plates = []
 
 		square_size = int(self.getWin().get_width()/map["size"][0])
 		self.__start_position = (np.array([square_size*(map["trajectory"][0][0]+1), square_size*(map["trajectory"][0][1]+1)]) - square_size/2).astype(int)
@@ -91,11 +97,14 @@ class RaceGame(Game):
 		for i in range(len(trajectory)):
 			
 			cp = trajectory[i]
+
 			pred = trajectory[i-1]
 			succ = trajectory[np.mod(i+1,len(trajectory))]
 
 			ul = np.array([square_size*cp[0], square_size*cp[1]])
 			dr = np.array([square_size*(cp[0]+1), square_size*(cp[1]+1)])
+
+			self.__plates.append(Plate(ul,square_size,square_size))
 
 			if not (cp[1]==pred[1] and pred[0]<cp[0]) and not(cp[1]==succ[1] and succ[0]<cp[0]):
 				self.__walls.append(Wall(ul, square_size, 1))
@@ -113,7 +122,14 @@ class RaceGame(Game):
 		for wall in self.__walls:
 			wall.setWindow(self.getWin())
 
+		for plate in self.__plates:
+			plate.setWindow(self.getWin())
+
 	def render(self):
+
+		for plate in self.__plates:
+			plate.draw()
+
 		if self.__cars:
 			for car in self.__cars:
 				car.draw(self.__walls)
@@ -130,7 +146,7 @@ class RaceGame(Game):
 
 class Car:
 
-	def __init__(self, radius, initial_position, initial_direction = (0, 1), color = (0,0,0)):
+	def __init__(self, radius, initial_position, initial_direction = (0, 1), color = CAR_DEF_COL):
 
 		self.__radius = radius
 		self.__position = np.array(initial_position)
@@ -225,7 +241,7 @@ class Car:
 
 class Wall:
 
-	def __init__(self, start, length, direction, color = (255,0,0)):
+	def __init__(self, start, length, direction, color = WALL_DEF_COL):
 
 		self.__color = color
 		self.__start = np.array(start)
@@ -283,6 +299,31 @@ class Wall:
 					self.__start.astype(int), 
 					self.__end.astype(int), 
 					20)
+
+class Plate:
+
+	def __init__(self, start, width, height, color = TRACK_DEF_COL):
+
+		self.__color = color
+		self.__start = np.array(start)
+
+		self.__width = width
+		self.__height = height
+		self.__win = None
+
+	def setWindow(self, window):
+		self.__win = window
+
+	def draw(self):
+		if self.__win:
+			pg.draw.rect(
+					self.__win, 
+					self.__color, 
+					(int(self.__start[0]),
+					int(self.__start[1]), 
+					self.__width, 
+					self.__height))
+
 
 
 def main():
