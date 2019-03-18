@@ -128,7 +128,7 @@ class RaceGame(Game):
 	def render(self):
 
 		for plate in self.__plates:
-			plate.draw()
+			plate.draw(self.__cars)
 
 		if self.__cars:
 			for car in self.__cars:

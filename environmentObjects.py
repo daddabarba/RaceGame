@@ -5,6 +5,7 @@ import copy
 
 WALL_DEF_COL = (255,0,0)
 TRACK_DEF_COL = (0, 150, 0)
+TRACK_ON_COl = (0,150,80)
 CAR_DEF_COL = (0,0,0)
 
 class EnvObj:
@@ -27,6 +28,9 @@ class EnvObj:
 
 	def getWindow(self):
 		return self.__win
+
+	def setColor(self, color):
+		self.__color = color
 
 	def getColor(self):
 		return self.__color
@@ -57,7 +61,6 @@ class Wall(EnvObj):
 			self.setRec(pg.Rect(start[0], start[1], length, 20))
 
 	def collides(self, car):
-
 		if self.__direction:
 			in_x = np.abs(self.__start[0] - car.getPosition()[0])<=car.getRadius()
 			in_y = car.getPosition()[1] <= max(self.__start[1], self.__end[1]) and car.getPosition()[1] >= min(self.__start[1], self.__end[1])
@@ -99,7 +102,27 @@ class Plate(EnvObj):
 		super(Plate, self).__init__(color)
 
 		self.setRec(pg.Rect(start[0],start[1],width,height))
+		self.cars_on = []
 
+	def draw(self, cars):
+
+		self.cars_on = []
+
+		if any(self.carsOn(cars)):
+			self.setColor(TRACK_ON_COl)
+		else:
+			self.setColor(TRACK_DEF_COL)
+
+		super(Plate, self).draw()
+
+	def carsOn(self, cars):
+		return [self.carOn(car) for car in cars]
+
+	def carOn(self, car):
+		if car.getRec()!=None and self.getRec().colliderect(car.getRec()):
+			self.cars_on.append(car)
+			return True
+		return False
 
 class Car(EnvObj):
 
