@@ -17,7 +17,7 @@ def generateTrack(size, min_len=2):
 	if len(path)<=min_len:
 		return generateTrack(size, min_len)
 
-	for pos in path[0:(len(path)-1)]:
+	for pos in path:
 		actualPath.append((pos[1],pos[0]))
 
 	return actualPath
@@ -70,7 +70,7 @@ def generateTrackAux(position, map, size):
 
 			if map[nextPosition[0]][nextPosition[1]] > 1:
 				#print("got to goal")
-				return [nextPosition]
+				return [position]
 
 			if len(nextTrack) > 0:
 				#print("back tracking")
