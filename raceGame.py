@@ -1,13 +1,14 @@
 import pygame as pg
-import copy
-
 import numpy as np
 
-import generatePath as gen
+import copy
+import sys
 
+import generatePath as gen
 import environmentObjects as eo
 
 BG_DEF_COL = (150, 150, 150)
+DEF_SIZE = 5
 
 class Game:
 
@@ -144,17 +145,15 @@ class RaceGame(Game):
 
 
 
-def main():
+def main(argv):
 
-	size = 5
+	if len(argv)<2:
+		size = DEF_SIZE
+	else:
+		size = int(argv[1])
+
 	map = {}
 	map["size"] = (size,size)
-	
-	# map["trajectory"] = [(4,4),(4,2),(2,2),(2,0),(0,0),(0,4)]
-	# map["trajectory"] = [(4,4),(4,3),(2,3),(2,0),(0,0),(0,4)]
-	# map["trajectory"] = [(1, 2), (1, 3), (0, 3), (0, 4), (1, 4), (2, 4), (2, 3), (3, 3), (4, 3), (4, 2), (4, 1), (3, 1), (3, 2)]
-	# map["trajectory"] = [(2, 0), (1, 0), (1, 1), (1, 2), (2, 2), (2, 3), (1, 3), (0, 3), (0, 4), (1, 4), (2, 4), (3, 4), (4, 4), (4, 3), (3, 3), (3, 2), (4, 2), (4, 1), (4, 0)]
-
 	map["trajectory"] = gen.generateTrack(size)
 
 	game = RaceGame(map)
@@ -166,4 +165,4 @@ def main():
 	game.run()
 
 if __name__ == '__main__':
-	main()
+	main(sys.argv)
