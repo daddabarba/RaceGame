@@ -3,24 +3,28 @@ import fcntl, os
 
 MAX_PORT = 65536
 
-class AiInterfaceServer:
+class Server:
 
 	def __init__(self, port=5000, size=1024, block=True, host="127.0.0.1", medium=socket.AF_INET, mode=socket.SOCK_STREAM):
 
 		self.__socket = socket.socket(medium, mode)
 
-		foundPort = False
-		while not foundPort and port<MAX_PORT:
+		if medium == socket.AF_INET:
+			foundPort = False
+			while not foundPort and port<MAX_PORT:
 
-			try:
-				self.__socket.bind((host, port))
-				foundPort = True
-			except:
-				port += 1
+				try:
+					self.__socket.bind((host, port))
+					foundPort = True
+				except:
+					port += 1
 
+			if not foundPort:
+				raise Exception("cannot find any available port") 
+				
+		elif medium == socket.AF_UNIX:
+			self.__socket.bind(port)
 
-		if not foundPort:
-			raise Exception("cannot find any available port") 
 
 		self.__port = port
 		self.__socket.listen(1)
@@ -33,12 +37,18 @@ class AiInterfaceServer:
 	def get(self):
 
 		try:
-			return self.__connection.recv(1024).decode()
+			return self.__connection.recv(self.__size)
 		except:
 			return None
 
 	def send(self, data):
-		self.__connection.send(data.encode())
+
+		if isinstance(data, str):
+			data = data.encode()
+		elif isinstance(data, int):
+			data = bytes([data])
+
+		self.__connection.send(data)
 		return self
 
 	def __call__(self, data):
@@ -59,12 +69,16 @@ class AiInterfaceServer:
 			self.__connection.close()
 		self.__socket.close()
 
-class AiInterfaceClient:
+class Client:
 
 	def __init__(self, port, size = 1024, block=True, host="127.0.0.1", medium=socket.AF_INET, mode=socket.SOCK_STREAM):
 
 		self.__socket = socket.socket(medium, mode)
-		self.__socket.connect((host, port))
+			
+		if medium == socket.AF_INET:
+			self.__socket.connect((host, port))
+		elif medium == socket.AF_UNIX:
+			self.__socket.connect(port)
 
 		self.__port = port
 		self.__socket.setblocking(block)
@@ -74,12 +88,18 @@ class AiInterfaceClient:
 	def get(self):
 
 		try:
-			return self.__socket.recv(self.__size).decode()
+			return self.__socket.recv(self.__size)
 		except:
 			return None
 
 	def send(self, data):
-		self.__socket.send(data.encode())
+
+		if isinstance(data, str):
+			data = data.encode()
+		elif isinstance(data, int):
+			data = bytes([data])
+
+		self.__socket.send(data)
 		return self
 
 	def __call__(self, data):

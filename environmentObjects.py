@@ -1,6 +1,8 @@
 import pygame as pg
 import numpy as np
 
+import AiInterface as AII
+
 import copy
 
 WALL_DEF_COL = (255,0,0)
@@ -152,6 +154,11 @@ class Car(EnvObj):
 
 		self.V_FACTOR = 1.5
 
+		self.__actionListener = AII.ActionInterface(9)
+
+	def start(self):
+		self.__actionListener.start()
+
 	def setWindow(self, window):
 		super(Car, self).setWindow(window)
 
@@ -160,18 +167,18 @@ class Car(EnvObj):
 
 	def handle_events(self, walls):
 
-		keys = pg.key.get_pressed()
+		action = self.__actionListener.getAction()
 
-		if keys[pg.K_UP] and self.a >=0:
+		if (action==AII.A_ACC or action==AII.A_RIGHT_ACC or action==AII.A_LEFT_ACC) and self.a >=0:
 			self.a = -1*self.A_MAG
-		elif keys[pg.K_DOWN] and self.a<=0:
+		elif (action==AII.A_BRK or action==AII.A_RIGHT_BRK or action==AII.A_LEFT_BRK) and self.a<=0:
 			self.a = self.A_MAG
 		else:
 			self.a = 0
 
-		if keys[pg.K_LEFT]:
+		if (action==AII.A_LEFT or action==AII.A_LEFT_ACC or action==AII.A_LEFT_BRK):
 			self.__direction = np.dot(self.ROTATE_L, self.__direction)
-		elif keys[pg.K_RIGHT]:
+		elif (action==AII.A_RIGHT or action==AII.A_RIGHT_ACC or action==AII.A_RIGHT_BRK):
 			self.__direction = np.dot(self.ROTATE_R, self.__direction)
 
 
@@ -215,3 +222,6 @@ class Car(EnvObj):
 
 	def getRadius(self):
 		return self.__radius
+
+	def __del__(self):
+		del self.__actionListener

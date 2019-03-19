@@ -110,6 +110,7 @@ class RaceGame(Game):
 			self.__cars.append(car)
 			car.setWindow(self.getWin())
 			car.setPosition(self.__start_position)
+			car.start()
 
 
 
