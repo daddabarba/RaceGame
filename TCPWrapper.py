@@ -1,6 +1,8 @@
 import socket
 import fcntl, os
 
+import struct
+
 MAX_PORT = 65536
 
 class Server:
@@ -47,6 +49,8 @@ class Server:
 			data = data.encode()
 		elif isinstance(data, int):
 			data = bytes([data])
+		elif isinstance(data, float):
+			data = bytearray(struct.pack("f", data))
 
 		self.__connection.send(data)
 		return self
@@ -98,6 +102,8 @@ class Client:
 			data = data.encode()
 		elif isinstance(data, int):
 			data = bytes([data])
+		elif isinstance(data, float):
+			data = bytearray(struct.pack("f", data))
 
 		self.__socket.send(data)
 		return self
