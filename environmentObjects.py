@@ -1,7 +1,10 @@
 import pygame as pg
 import numpy as np
 
+import pars
+
 import AiInterface as AII
+import threading as thread
 
 import copy
 
@@ -103,8 +106,13 @@ class Plate(EnvObj):
 
 		super(Plate, self).__init__(color)
 
+		self.id = None
+
 		self.setRec(pg.Rect(start[0],start[1],width,height))
 		self.cars_on = []
+
+	def setID(self, id):
+		self.id = id
 
 	def draw(self, cars):
 
@@ -118,6 +126,7 @@ class Plate(EnvObj):
 		super(Plate, self).draw()
 
 	def carsOn(self, cars):
+		self.cars_on = []
 		return [self.carOn(car) for car in cars]
 
 	def carOn(self, car):
@@ -128,9 +137,11 @@ class Plate(EnvObj):
 
 class Car(EnvObj):
 
-	def __init__(self, radius, initial_position, initial_direction = (0, 1), color = CAR_DEF_COL):
+	def __init__(self, id, radius, initial_position, initial_direction = (0, 1), color = CAR_DEF_COL):
 
 		super(Car,self).__init__(color)
+
+		self.id = id
 
 		self.__radius = radius
 		self.__position = np.array(initial_position)
@@ -154,13 +165,32 @@ class Car(EnvObj):
 
 		self.V_FACTOR = 1.5
 
-		self.__actionListener = AII.ActionInterface(9)
+		self.__actionListener = AII.ActionInterface(self.id, 9)
+		self.__stateSocket = None
+		self.__rewardSocket = AII.RewardInterface(self.id)
 
 	def start(self):
-		self.__actionListener.start()
+
+		t1 = thread.Thread(target=self.__actionListener.start)
+		t2 = thread.Thread(target=self.__stateSocket.start)
+		t3 = thread.Thread(target=self.__rewardSocket.start)
+
+		t1.start()
+		t2.start()
+		t3.start()
+
+		t1.join()
+		t2.join()
+		t3.join()
 
 	def setWindow(self, window):
 		super(Car, self).setWindow(window)
+
+	def setNumStates(self, numStates):
+		self.__stateSocket = AII.StateInterface(self.id, numStates)
+
+	def setEnv(self, env):
+		self.__env = env
 
 	def setPosition(self, position):
 		self.__position = np.array(position)
@@ -186,6 +216,7 @@ class Car(EnvObj):
 		for bumpWall in bumpWalls:
 			if bumpWall:
 				self.__position = self.__position + bumpWall.getBump(self)*self.v
+				self.__rewardSocket.addReward(pars.R_BUMP)
 
 		self.a /= self.A_FACTOR
 
@@ -199,6 +230,15 @@ class Car(EnvObj):
 		for bumpWall in bumpWalls:
 			if bumpWall:
 				self.__position = bumpWall.boundSpace(self, self.__position)
+
+	def __connect(self):
+
+		plate = self.__env.getPlate(self)
+
+		self.__rewardSocket.sendReward()
+		if self.__stateSocket:
+			self.__stateSocket.setState(plate.id)
+			self.__stateSocket.sendState()
 
 	def draw(self, walls):
 
@@ -216,6 +256,8 @@ class Car(EnvObj):
 				self.__position.astype(int), 
 				(self.__position - 1.2*self.__radius*self.__direction).astype(int), 
 				int(self.__radius/2))
+
+			self.__connect()
 
 	def getPosition(self):
 		return self.__position

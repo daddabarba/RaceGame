@@ -90,8 +90,17 @@ class RaceGame(Game):
 		for wall in self.__walls:
 			wall.setWindow(self.getWin())
 
+		for i in range(len(self.__plates)):
+			self.__plates[i].setID(i)
+			self.__plates[i].setWindow(self.getWin())
+
+	def getPlate(self, car):
+
 		for plate in self.__plates:
-			plate.setWindow(self.getWin())
+			if plate.carOn(car):
+				return plate
+
+		return None
 
 	def render(self):
 
@@ -110,6 +119,8 @@ class RaceGame(Game):
 			self.__cars.append(car)
 			car.setWindow(self.getWin())
 			car.setPosition(self.__start_position)
+			car.setNumStates(len(self.__plates))
+			car.setEnv(self)
 			car.start()
 
 
@@ -127,7 +138,7 @@ def main(argv):
 
 	game = RaceGame(map)
 
-	car = eo.Car(50, (500,500))
+	car = eo.Car(1, 50, (500,500))
 
 	game.addCars([car])
 
