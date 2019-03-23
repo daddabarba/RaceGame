@@ -47,8 +47,6 @@ class Remote:
 			self.__client(3)
 		elif keys[pg.K_DOWN]:
 			self.__client(4)
-		else:
-			self.__client(0)
 
 
 def main(argv):
