@@ -14,8 +14,6 @@ A_RIGHT_BRK = 6
 A_LEFT_ACC = 7
 A_LEFT_BRK = 8
 
-BASE = "/home/daddabarba/Desktop/server"
-
 class AiInterface:
 
 	def __init__(self, id, maxNum, file):
@@ -42,8 +40,8 @@ class AiInterface:
 
 class ActionInterface(AiInterface):
 
-	def __init__(self, id, numActions):
-		super(ActionInterface, self).__init__(id, numActions, BASE+"_a_" + str(id))
+	def __init__(self, id, base, numActions):
+		super(ActionInterface, self).__init__(id, numActions, base+"_a_" + str(id))
 		print("started action listener %d at port %s"%(self.id, str(self.getServer().getPort())))
 
 		self.__action = 0
@@ -63,8 +61,8 @@ class ActionInterface(AiInterface):
 
 class RewardInterface(AiInterface):
 
-	def __init__(self, id):
-		super(RewardInterface, self).__init__(id, 10000, BASE + "_r_" + str(id))
+	def __init__(self, id, base):
+		super(RewardInterface, self).__init__(id, 10000, base + "_r_" + str(id))
 		print("started reward listener %d at port %s"%(self.id, str(self.getServer().getPort())))
 
 		self.__reward = 0.0
@@ -83,8 +81,8 @@ class RewardInterface(AiInterface):
 
 class StateInterface(AiInterface):
 
-	def __init__(self, id, numStates):
-		super(StateInterface, self).__init__(id, numStates, BASE+"_s_"+str(id))
+	def __init__(self, id, base, numStates):
+		super(StateInterface, self).__init__(id, numStates, base+"_s_"+str(id))
 		print("started state listener %d at port %s"%(self.id, str(self.getServer().getPort())))
 
 		self.__state = 0

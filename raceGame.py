@@ -127,10 +127,10 @@ class RaceGame(Game):
 
 def main(argv):
 
-	if len(argv)<2:
+	if len(argv)<3:
 		size = DEF_SIZE
 	else:
-		size = int(argv[1])
+		size = int(argv[2])
 
 	map = {}
 	map["size"] = (size,size)
@@ -138,7 +138,7 @@ def main(argv):
 
 	game = RaceGame(map)
 
-	car = eo.Car(1, 50, (500,500))
+	car = eo.Car(1, argv[1], 50, (500,500))
 
 	game.addCars([car])
 

@@ -137,11 +137,12 @@ class Plate(EnvObj):
 
 class Car(EnvObj):
 
-	def __init__(self, id, radius, initial_position, initial_direction = (0, 1), color = CAR_DEF_COL):
+	def __init__(self, id, base, radius, initial_position, initial_direction = (0, 1), color = CAR_DEF_COL):
 
 		super(Car,self).__init__(color)
 
 		self.id = id
+		self.base = base
 
 		self.__radius = radius
 		self.__position = np.array(initial_position)
@@ -165,9 +166,9 @@ class Car(EnvObj):
 
 		self.V_FACTOR = 1.5
 
-		self.__actionListener = AII.ActionInterface(self.id, 9)
+		self.__actionListener = AII.ActionInterface(self.id, self.base, 9)
 		self.__stateSocket = None
-		self.__rewardSocket = AII.RewardInterface(self.id)
+		self.__rewardSocket = AII.RewardInterface(self.id, self.base)
 
 	def start(self):
 
@@ -187,7 +188,7 @@ class Car(EnvObj):
 		super(Car, self).setWindow(window)
 
 	def setNumStates(self, numStates):
-		self.__stateSocket = AII.StateInterface(self.id, numStates)
+		self.__stateSocket = AII.StateInterface(self.id, self.base, numStates)
 
 	def setEnv(self, env):
 		self.__env = env
