@@ -25,6 +25,10 @@ class Server:
 				raise Exception("cannot find any available port") 
 				
 		elif medium == socket.AF_UNIX:
+
+			if os.path.exists(port):
+				os.remove(port)
+				
 			self.__socket.bind(port)
 
 
