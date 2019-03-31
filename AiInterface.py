@@ -41,10 +41,14 @@ class AiInterface:
 class ActionInterface(AiInterface):
 
 	def __init__(self, id, base, numActions):
-		super(ActionInterface, self).__init__(id, numActions, base+"_a_" + str(id))
+		super(ActionInterface, self).__init__(id, numActions, base+"_" + str(id) + "_a")
 		print("started action listener %d at port %s"%(self.id, str(self.getServer().getPort())))
 
 		self.__action = 0
+
+	def start(self):
+		super(ActionInterface, self).start()
+		self.getServer()(self.getMax())
 
 	def start(self):
 		super(ActionInterface, self).start()
@@ -62,7 +66,7 @@ class ActionInterface(AiInterface):
 class RewardInterface(AiInterface):
 
 	def __init__(self, id, base):
-		super(RewardInterface, self).__init__(id, 10000, base + "_r_" + str(id))
+		super(RewardInterface, self).__init__(id, 10000, base + "_" + str(id) + "_r")
 		print("started reward listener %d at port %s"%(self.id, str(self.getServer().getPort())))
 
 		self.__reward = 0.0
@@ -82,7 +86,7 @@ class RewardInterface(AiInterface):
 class StateInterface(AiInterface):
 
 	def __init__(self, id, base, numStates):
-		super(StateInterface, self).__init__(id, numStates, base+"_s_"+str(id))
+		super(StateInterface, self).__init__(id, numStates, base+"_"+str(id) + "_s")
 		print("started state listener %d at port %s"%(self.id, str(self.getServer().getPort())))
 
 		self.__state = 0
@@ -99,6 +103,6 @@ class StateInterface(AiInterface):
 		state = self.getServer().get()
 
 		if state != None:
-			self.getServer().send(self.__state)
+			self.getServer().send(int(self.__state))
 
 
