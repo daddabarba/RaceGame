@@ -13,6 +13,7 @@ import copy
 WALL_DEF_COL = (255,0,0)
 TRACK_DEF_COL = (0, 150, 0)
 TRACK_ON_COl = (0,150,80)
+TRACK_CHPT_COL = (150,0,0)
 CAR_DEF_COL = (0,0,0)
 
 class EnvObj:
@@ -123,7 +124,9 @@ class Plate(EnvObj):
 
 		self.cars_on = []
 
-		if any(self.carsOn(cars)):
+		if self.__r != 0:
+			self.setColor(TRACK_CHPT_COL)
+		elif any(self.carsOn(cars)):
 			self.setColor(TRACK_ON_COl)
 		else:
 			self.setColor(TRACK_DEF_COL)
