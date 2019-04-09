@@ -6,6 +6,8 @@ import pars
 import AiInterface as AII
 import threading as thread
 
+import Geometry as geom
+
 import copy
 
 WALL_DEF_COL = (255,0,0)
@@ -238,7 +240,18 @@ class Car(EnvObj):
 
 		self.__rewardSocket.sendReward()
 		if self.__stateSocket:
-			self.__stateSocket.setState(plate.id)
+
+			state = plate.id*4
+			orintation = geom.angDeg(np.array([0, 1]), self.__direction)
+
+			if orintation<=45:
+				state += 1
+			elif orintation<=135 and self.__direction[0] <= 0.0:
+				state += 2
+			elif orintation>135:
+				state += 3
+
+			self.__stateSocket.setState(state)
 			self.__stateSocket.sendState()
 
 	def draw(self, walls):
