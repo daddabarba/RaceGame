@@ -110,6 +110,9 @@ class Plate(EnvObj):
 
 		self.id = None
 
+		self.succ = None
+		self.__r = 0
+
 		self.setRec(pg.Rect(start[0],start[1],width,height))
 		self.cars_on = []
 
@@ -136,6 +139,22 @@ class Plate(EnvObj):
 			self.cars_on.append(car)
 			return True
 		return False
+
+	def setNext(self, next):
+		self.__next = next
+
+	def setReward(self, r):
+		self.__r = r
+
+	def getReward(self):
+
+		ret = self.__r
+
+		if self.__r != 0:
+			self.__r = 0
+			self.succ.succ.setReward(ret)
+
+		return ret
 
 class Car(EnvObj):
 
