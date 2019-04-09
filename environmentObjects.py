@@ -141,7 +141,7 @@ class Plate(EnvObj):
 		return False
 
 	def setNext(self, next):
-		self.__next = next
+		self.succ = next
 
 	def setReward(self, r):
 		self.__r = r
@@ -257,6 +257,7 @@ class Car(EnvObj):
 
 		plate = self.__env.getPlate(self)
 
+		self.__rewardSocket.addReward(plate.getReward())
 		self.__rewardSocket.sendReward()
 		if self.__stateSocket:
 

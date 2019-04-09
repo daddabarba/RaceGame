@@ -7,6 +7,8 @@ import sys
 import generatePath as gen
 import environmentObjects as eo
 
+import pars
+
 BG_DEF_COL = (150, 150, 150)
 DEF_SIZE = 5
 
@@ -94,6 +96,8 @@ class RaceGame(Game):
 			self.__plates[i].setID(i)
 			self.__plates[i].setNext(self.__plates[i+1] if i<(len(self.__plates)-1) else self.__plates[0])
 			self.__plates[i].setWindow(self.getWin())
+
+		self.__plates[2].setReward(pars.R_CHPT)
 
 	def getPlate(self, car):
 
