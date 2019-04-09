@@ -92,6 +92,7 @@ class RaceGame(Game):
 
 		for i in range(len(self.__plates)):
 			self.__plates[i].setID(i)
+			self.__plates[i].setNext(self.__plates[i+1] if i<(len(self.__plates)-1) else self.__plates[0])
 			self.__plates[i].setWindow(self.getWin())
 
 	def getPlate(self, car):
