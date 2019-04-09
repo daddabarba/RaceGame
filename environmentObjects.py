@@ -216,7 +216,7 @@ class Car(EnvObj):
 		bumpWalls = [wall.collides(self) for wall in walls]
 		for bumpWall in bumpWalls:
 			if bumpWall:
-				self.__position = self.__position + bumpWall.getBump(self)*self.v
+				self.__position = self.__position + bumpWall.getBump(self)*-1*np.abs(self.v)
 				self.__rewardSocket.addReward(pars.R_BUMP)
 
 		self.a /= self.A_FACTOR
