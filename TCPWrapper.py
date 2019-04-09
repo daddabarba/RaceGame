@@ -54,7 +54,7 @@ class Server:
 		elif isinstance(data, int):
 			data = bytes([data])
 		elif isinstance(data, float):
-			data = bytearray(struct.pack("f", data))
+			data = bytearray(struct.pack("d", data))
 
 		self.__connection.send(data)
 		return self
@@ -107,7 +107,7 @@ class Client:
 		elif isinstance(data, int):
 			data = bytes([data])
 		elif isinstance(data, float):
-			data = bytearray(struct.pack("f", data))
+			data = bytearray(struct.pack("d", data))
 
 		self.__socket.send(data)
 		return self
