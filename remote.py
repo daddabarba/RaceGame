@@ -55,7 +55,7 @@ class Remote:
 		self.__state(1)
 		self.__reward(1)
 
-		print("s: " + str(int.from_bytes(self.__state.get(), "little")) + "\t r: " + str(struct.unpack('f', self.__reward.get())))
+		print("s: " + str(int.from_bytes(self.__state.get(), "little")) + "\t r: " + str(struct.unpack('d', self.__reward.get())))
 
 
 def main(argv):
