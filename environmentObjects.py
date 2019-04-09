@@ -154,7 +154,7 @@ class Car(EnvObj):
 		self.v = 0.0
 
 		self.A_FACTOR = 1.5
-		self.A_MAG = 20.0
+		self.A_MAG = 10.0
 
 		self.W_FACTOR = np.deg2rad(10)
 
