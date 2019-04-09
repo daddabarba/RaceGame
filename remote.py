@@ -10,7 +10,7 @@ class Remote:
 
 	def __init__(self, port):
 		pg.init()
-		pg.display.set_mode((500,500))
+		pg.display.set_mode((100,100))
 		pg.display.set_caption("controller")
 
 		self.__action = tcp.Client(port + "_a", medium=socket.AF_UNIX)
