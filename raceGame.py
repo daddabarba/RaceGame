@@ -11,6 +11,7 @@ import pars
 
 BG_DEF_COL = (150, 150, 150)
 DEF_SIZE = 5
+DEF_DELAY = 100
 
 class Game:
 
@@ -23,7 +24,7 @@ class Game:
 
 
 
-	def run(self, delay=100):
+	def run(self, delay=DEF_DELAY):
 
 		run = True
 		while(run):
@@ -97,7 +98,7 @@ class RaceGame(Game):
 			self.__plates[i].setNext(self.__plates[i+1] if i<(len(self.__plates)-1) else self.__plates[0])
 			self.__plates[i].setWindow(self.getWin())
 
-		self.__plates[2].setReward(pars.R_CHPT)
+		self.__plates[1].setReward(pars.R_CHPT)
 
 	def getPlate(self, car):
 
