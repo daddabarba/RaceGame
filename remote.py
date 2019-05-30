@@ -28,7 +28,7 @@ class Remote:
 					continue
 			
 			self.action()
-			pg.time.delay(100)
+			pg.time.delay(50)
 			pg.display.update()
 
 	def action(self):
