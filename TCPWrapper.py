@@ -40,10 +40,10 @@ class Server:
 
 		self.__size = size
 
-	def get(self):
+	def get(self, size=None):
 
 		try:
-			return self.__connection.recv(self.__size)
+			return self.__connection.recv(self.__size if not size else size)
 		except:
 			return None
 
@@ -51,12 +51,20 @@ class Server:
 
 		if isinstance(data, str):
 			data = data.encode()
+			size = len(data)
 		elif isinstance(data, int):
-			data = bytes([data])
+			data = data.to_bytes(4, 'little')
+			size = 4
 		elif isinstance(data, float):
-			data = bytearray(struct.pack("d", data))
+			data = bytearray(struct.pack("<d", data))
+			size = 8
 
-		self.__connection.send(data)
+		try:
+			self.__connection.send(data, size)
+		except:
+			print ("resource unavailable")
+			return None
+
 		return self
 
 	def __call__(self, data):
@@ -93,10 +101,10 @@ class Client:
 
 		self.__size = size
 
-	def get(self):
+	def get(self, size=None):
 
 		try:
-			return self.__socket.recv(self.__size)
+			return self.__socket.recv(self.__size if not size else size)
 		except:
 			return None
 
@@ -105,9 +113,9 @@ class Client:
 		if isinstance(data, str):
 			data = data.encode()
 		elif isinstance(data, int):
-			data = bytes([data])
+			data = data.to_bytes(4,'little')
 		elif isinstance(data, float):
-			data = bytearray(struct.pack("d", data))
+			data = bytearray(struct.pack("<d", data))
 
 		self.__socket.send(data)
 		return self

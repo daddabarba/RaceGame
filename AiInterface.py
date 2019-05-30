@@ -1,5 +1,6 @@
 import TCPWrapper as tcp
 import socket
+import threading as thread
 
 import math
 import random
@@ -33,7 +34,9 @@ class AiInterface:
 		return self.__server
 
 	def start(self):
-		self.__server.start()
+                t = thread.Thread(target=self.__server.start)
+                t.start()
+                t.join()
 
 	def __del__(self):
 		del self.__server
@@ -49,18 +52,13 @@ class ActionInterface(AiInterface):
 	def start(self):
 		super(ActionInterface, self).start()
 		self.getServer()(self.getMax())
-
-	def start(self):
-		super(ActionInterface, self).start()
-		self.getServer()(self.getMax())
-
+   
 	def getAction(self):
 
-		action = self.getServer().get()
+		action = self.getServer().get(4)
 
 		if action != None:
 			self.__action = int.from_bytes(action, "little")
-	
 		return self.__action
 
 class RewardInterface(AiInterface):
@@ -73,9 +71,9 @@ class RewardInterface(AiInterface):
 
 	def sendReward(self):
 
-		reward = self.getServer().get()
+		sig = self.getServer().get(4)
 
-		if reward != None:
+		if sig != None:
 			self.getServer().send(self.__reward)
 			self.__reward = 0.0
 
@@ -93,6 +91,7 @@ class StateInterface(AiInterface):
 
 	def start(self):
 		super(StateInterface, self).start()
+
 		self.getServer()(self.getMax())
 
 	def setState(self, state):
@@ -100,9 +99,10 @@ class StateInterface(AiInterface):
 
 	def sendState(self):
 
-		state = self.getServer().get()
+		sig = self.getServer().get(4)
 
-		if state != None:
-			self.getServer().send(int(self.__state))
+		if sig != None:
+			sent = self.getServer().send(int(self.__state))
+
 
 

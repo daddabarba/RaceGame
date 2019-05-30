@@ -4,7 +4,6 @@ import numpy as np
 import pars
 
 import AiInterface as AII
-import threading as thread
 
 import Geometry as geom
 
@@ -155,7 +154,7 @@ class Plate(EnvObj):
 
 		if self.__r != 0:
 			self.__r = 0
-			self.succ.succ.setReward(ret)
+			self.succ.setReward(ret)
 
 		return ret
 
@@ -195,18 +194,10 @@ class Car(EnvObj):
 		self.__rewardSocket = AII.RewardInterface(self.id, self.base)
 
 	def start(self):
-
-		t1 = thread.Thread(target=self.__actionListener.start)
-		t2 = thread.Thread(target=self.__stateSocket.start)
-		t3 = thread.Thread(target=self.__rewardSocket.start)
-
-		t1.start()
-		t2.start()
-		t3.start()
-
-		t1.join()
-		t2.join()
-		t3.join()
+                self.__actionListener.start()
+                self.__stateSocket.start()
+                self.__rewardSocket.start()
+                print("all accepted")
 
 	def setWindow(self, window):
 		super(Car, self).setWindow(window)
