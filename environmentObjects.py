@@ -214,7 +214,7 @@ class Car(EnvObj):
 		super(Car, self).setWindow(window)
 
 	def setNumStates(self, numStates):
-		self.__stateSocket = AII.StateInterface(self.id, self.base, numStates*4)
+		self.__stateSocket = AII.StateInterface(self.id, self.base, numStates*self.fine_rot_sensor)
 
 	def setEnv(self, env):
 		self.__env = env
