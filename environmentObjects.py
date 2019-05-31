@@ -167,12 +167,14 @@ class Plate(EnvObj):
 
 class Car(EnvObj):
 
-	def __init__(self, id, base, radius, initial_position, initial_direction = (0, 1), color = CAR_DEF_COL):
+	def __init__(self, id, base, radius, initial_position, fine_rot_sensor=pars.FINE_ROT_SENSOR, initial_direction = (0, 1), color = CAR_DEF_COL):
 
 		super(Car,self).__init__(color)
 
 		self.id = id
 		self.base = base
+
+		self.fine_rot_sensor = fine_rot_sensor
 
 		self.loopDirection = None
 
@@ -264,16 +266,12 @@ class Car(EnvObj):
 		self.__rewardSocket.sendReward()
 		if self.__stateSocket:
 
-			state = plate.id*4
-			orintation = geom.angDeg(np.array([0, 1]), self.__direction)
+			state = plate.id*self.fine_rot_sensor
+			orientation = geom.angVec(self.__direction)
+			print("orientation: ", orientation, "\tstep: ", 360/self.fine_rot_sensor)
+			state += int(orientation/(360/self.fine_rot_sensor))
 
-			if orintation<=45:
-				state += 1
-			elif orintation<=135 and self.__direction[0] <= 0.0:
-				state += 2
-			elif orintation>135:
-				state += 3
-
+			print("state: ", state)
 			self.__stateSocket.setState(state)
 			self.__stateSocket.sendState()
 

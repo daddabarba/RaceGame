@@ -19,3 +19,8 @@ def angRad(x, y):
 
 def angDeg(x,y):
 	return angRad(x, y)/np.pi * 180
+
+def angVec(x):
+	x = norm(x)
+	rad = np.arctan2(x[1],x[0])
+	return rad/np.pi*180 + 180

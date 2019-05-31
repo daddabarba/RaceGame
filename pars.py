@@ -1,2 +1,4 @@
 R_BUMP = -10
 R_CHPT = 20
+
+FINE_ROT_SENSOR = 4
