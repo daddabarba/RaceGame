@@ -267,10 +267,8 @@ class Car(EnvObj):
 
 			state = plate.id*self.fine_rot_sensor
 			orientation = geom.angVec(self.__direction)
-			print("orientation: ", orientation, "\tstep: ", 360/self.fine_rot_sensor)
 			state += int(orientation/(360/self.fine_rot_sensor))
 
-			print("state: ", state)
 			self.__stateSocket.setState(state)
 			self.__stateSocket.sendState()
 
