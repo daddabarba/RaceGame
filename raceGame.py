@@ -11,6 +11,7 @@ import pars
 
 BG_DEF_COL = (150, 150, 150)
 DEF_SIZE = 5
+DEF_CARS = 1
 DEF_DELAY = 100
 
 class Game:
@@ -164,10 +165,20 @@ class RaceGame(Game):
 
 def main(argv):
 
-	if len(argv)<3:
-		size = DEF_SIZE
-	else:
-		size = int(argv[2])
+	size = DEF_SIZE
+	num_cars = DEF_CARS
+
+	if len(argv)>2:
+		i = 2
+		while i<len(argv): 
+			if argv[i] == "--size":
+				size = int(argv[i+1])
+			elif argv[i] == "--n-cars":
+				num_cars = int(argv[i+1])
+			else:
+				print("option not recognized")
+				exit(-1)
+			i+=2
 
 	map = {}
 	map["size"] = (size,size)
@@ -175,9 +186,11 @@ def main(argv):
 
 	game = RaceGame(map)
 
-	car = eo.Car(1, argv[1], 50, (500,500))
+	cars = []
+	for i in range(num_cars):
+		cars.append(eo.Car(i, argv[1], 50, (500,500)))
 
-	game.addCars([car])
+	game.addCars(cars)
 
 	game.run()
 
