@@ -53,8 +53,10 @@ class Game:
 
 class RaceGame(Game):
 
-	def __init__(self, map):
+	def __init__(self, map, step=1):
 		super(RaceGame, self).__init__()
+
+		self.__step = step
 
 		self.__cars = []
 		self.__walls = []
@@ -97,8 +99,8 @@ class RaceGame(Game):
 			self.__plates[i].setID(i)
 			self.__plates[i].setNext(self.__plates[i+1] if i<(len(self.__plates)-1) else self.__plates[0])
 			self.__plates[i].setWindow(self.getWin())
+			self.__plates[i].setEnv(self)
 
-		self.__plates[1].setReward(pars.R_CHPT)
 
 	def getPlate(self, car):
 
@@ -107,6 +109,16 @@ class RaceGame(Game):
 				return plate
 
 		return None
+
+	def moveReward(self, pID, car):
+		
+		if not car.loopDirection:
+			car.loopDirection = 1 if pID==self.__step else -1
+			self.__plates[self.__step*car.loopDirection*-1].setReward(car, 0)
+
+		self.__plates[(pID+car.loopDirection*self.__step)%len(self.__plates)].setReward(car, self.__plates[pID].getReward(car))
+		self.__plates[pID].setReward(car,0)
+
 
 	def render(self):
 
@@ -128,6 +140,8 @@ class RaceGame(Game):
 			car.setNumStates(len(self.__plates))
 			car.setEnv(self)
 			car.start()
+			self.__plates[self.__step].setReward(car, pars.R_CHPT)
+			self.__plates[-1*self.__step].setReward(car, pars.R_CHPT)
 
 
 

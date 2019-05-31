@@ -110,8 +110,8 @@ class Plate(EnvObj):
 
 		self.id = None
 
-		self.succ = None
-		self.__r = 0
+		self.__r = {}
+		self.__env = None
 
 		self.setRec(pg.Rect(start[0],start[1],width,height))
 		self.cars_on = []
@@ -119,11 +119,14 @@ class Plate(EnvObj):
 	def setID(self, id):
 		self.id = id
 
+	def setEnv(self, env):
+		self.__env = env
+
 	def draw(self, cars):
 
 		self.cars_on = []
 
-		if self.__r != 0:
+		if any(x!=0 for x in list(self.__r.values())):
 			self.setColor(TRACK_CHPT_COL)
 		elif any(self.carsOn(cars)):
 			self.setColor(TRACK_ON_COl)
@@ -145,17 +148,21 @@ class Plate(EnvObj):
 	def setNext(self, next):
 		self.succ = next
 
-	def setReward(self, r):
-		self.__r = r
+	def setReward(self, car, r):
+		self.__r[car] = r
 
-	def getReward(self):
+	def getReward(self, car):
 
-		ret = self.__r
+		if not car in self.__r.keys():
+				return 0
+		return self.__r[car]
 
-		if self.__r != 0:
-			self.__r = 0
-			self.succ.setReward(ret)
+	def assignReward(self, car):
 
+		ret = self.getReward(car)
+
+		if ret!= 0:
+				self.__env.moveReward(self.id, car)
 		return ret
 
 class Car(EnvObj):
@@ -166,6 +173,8 @@ class Car(EnvObj):
 
 		self.id = id
 		self.base = base
+
+		self.loopDirection = None
 
 		self.__radius = radius
 		self.__position = np.array(initial_position)
@@ -194,10 +203,10 @@ class Car(EnvObj):
 		self.__rewardSocket = AII.RewardInterface(self.id, self.base)
 
 	def start(self):
-                self.__actionListener.start()
-                self.__stateSocket.start()
-                self.__rewardSocket.start()
-                print("all accepted")
+				self.__actionListener.start()
+				self.__stateSocket.start()
+				self.__rewardSocket.start()
+				print("all accepted")
 
 	def setWindow(self, window):
 		super(Car, self).setWindow(window)
@@ -251,7 +260,7 @@ class Car(EnvObj):
 
 		plate = self.__env.getPlate(self)
 
-		self.__rewardSocket.addReward(plate.getReward())
+		self.__rewardSocket.addReward(plate.assignReward(self))
 		self.__rewardSocket.sendReward()
 		if self.__stateSocket:
 
