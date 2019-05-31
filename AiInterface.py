@@ -34,9 +34,7 @@ class AiInterface:
 		return self.__server
 
 	def start(self):
-                t = thread.Thread(target=self.__server.start)
-                t.start()
-                t.join()
+		self.__server.start()
 
 	def __del__(self):
 		del self.__server

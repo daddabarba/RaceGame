@@ -1,5 +1,6 @@
 import pygame as pg
 import numpy as np
+import threading as thread
 
 import pars
 
@@ -204,10 +205,18 @@ class Car(EnvObj):
 		self.__rewardSocket = AII.RewardInterface(self.id, self.base)
 
 	def start(self):
-				self.__actionListener.start()
-				self.__stateSocket.start()
-				self.__rewardSocket.start()
-				print("all accepted")
+		
+		t1 = thread.Thread(target = self.__actionListener.start)
+		t2 = thread.Thread(target = self.__stateSocket.start)
+		t3 = thread.Thread(target = self.__rewardSocket.start)
+
+		t1.start()
+		t2.start()
+		t3.start()
+
+		t1.join()
+		t2.join()
+		t3.join()
 
 	def setWindow(self, window):
 		super(Car, self).setWindow(window)
