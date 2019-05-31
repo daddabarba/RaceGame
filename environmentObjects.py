@@ -145,9 +145,6 @@ class Plate(EnvObj):
 			return True
 		return False
 
-	def setNext(self, next):
-		self.succ = next
-
 	def setReward(self, car, r):
 		self.__r[car] = r
 
