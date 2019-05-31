@@ -53,7 +53,7 @@ class Game:
 
 class RaceGame(Game):
 
-	def __init__(self, map, step=1):
+	def __init__(self, map, precision=pars.DEF_PRECISION, step=pars.DEF_STEP):
 		super(RaceGame, self).__init__()
 
 		self.__step = step
@@ -67,6 +67,8 @@ class RaceGame(Game):
 
 		trajectory = map["trajectory"]
 
+		shift = np.array([square_size/precision, square_size/precision])
+
 		for i in range(len(trajectory)):
 			
 			cp = trajectory[i]
@@ -77,7 +79,16 @@ class RaceGame(Game):
 			ul = np.array([square_size*cp[0], square_size*cp[1]])
 			dr = np.array([square_size*(cp[0]+1), square_size*(cp[1]+1)])
 
-			self.__plates.append(eo.Plate(ul,square_size,square_size))
+			inner_count = 0
+			self.__plates.append([])
+			for r in range(precision):
+				for c in range(precision):
+					self.__plates[-1].append(eo.Plate(ul+np.array([c,r])*shift, square_size/precision, square_size/precision))
+					self.__plates[-1][-1].setID(i*precision*precision+inner_count, i)
+					self.__plates[-1][-1].setWindow(self.getWin())
+					self.__plates[-1][-1].setEnv(self)
+
+			# self.__plates.append(eo.Plate(ul,square_size,square_size))
 
 			if not (cp[1]==pred[1] and pred[0]<cp[0]) and not(cp[1]==succ[1] and succ[0]<cp[0]):
 				self.__walls.append(eo.Wall(ul, square_size, 1))
@@ -95,34 +106,39 @@ class RaceGame(Game):
 		for wall in self.__walls:
 			wall.setWindow(self.getWin())
 
-		for i in range(len(self.__plates)):
-			self.__plates[i].setID(i)
-			self.__plates[i].setWindow(self.getWin())
-			self.__plates[i].setEnv(self)
+		# for i in range(len(self.__plates)):
+		#	self.__plates[i].setID(i)
+		#	self.__plates[i].setWindow(self.getWin())
+		#	self.__plates[i].setEnv(self)
 
 
 	def getPlate(self, car):
 
-		for plate in self.__plates:
-			if plate.carOn(car):
-				return plate
+		for trail in self.__plates:
+			for plate in trail:
+				if plate.carOn(car):
+					return plate
 
 		return None
 
-	def moveReward(self, pID, car):
+	def moveReward(self, trail, car):
 		
 		if not car.loopDirection:
-			car.loopDirection = 1 if pID==self.__step else -1
-			self.__plates[self.__step*car.loopDirection*-1].setReward(car, 0)
+			car.loopDirection = 1 if trail==self.__step else -1
+			for plate in self.__plates[self.__step*car.loopDirection*-1]:
+				plate.setReward(car, 0)
 
-		self.__plates[(pID+car.loopDirection*self.__step)%len(self.__plates)].setReward(car, self.__plates[pID].getReward(car))
-		self.__plates[pID].setReward(car,0)
+		for plate in self.__plates[(trail+car.loopDirection*self.__step)%len(self.__plates)]:
+			plate.setReward(car, self.__plates[trail][0].getReward(car))
+		for plate in self.__plates[trail]:
+			plate.setReward(car,0)
 
 
 	def render(self):
 
-		for plate in self.__plates:
-			plate.draw(self.__cars)
+		for trail in self.__plates:
+			for plate in trail:
+				plate.draw(self.__cars)
 
 		if self.__cars:
 			for car in self.__cars:
@@ -139,8 +155,10 @@ class RaceGame(Game):
 			car.setNumStates(len(self.__plates))
 			car.setEnv(self)
 			car.start()
-			self.__plates[self.__step].setReward(car, pars.R_CHPT)
-			self.__plates[-1*self.__step].setReward(car, pars.R_CHPT)
+			for plate in self.__plates[self.__step]:
+				plate.setReward(car, pars.R_CHPT)
+			for plate in self.__plates[self.__step*-1]:
+				plate.setReward(car, pars.R_CHPT)
 
 
 

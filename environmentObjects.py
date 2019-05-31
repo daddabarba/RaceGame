@@ -109,6 +109,7 @@ class Plate(EnvObj):
 		super(Plate, self).__init__(color)
 
 		self.id = None
+		self.trail = None
 
 		self.__r = {}
 		self.__env = None
@@ -116,8 +117,9 @@ class Plate(EnvObj):
 		self.setRec(pg.Rect(start[0],start[1],width,height))
 		self.cars_on = []
 
-	def setID(self, id):
+	def setID(self, id, trail):
 		self.id = id
+		self.trail = trail
 
 	def setEnv(self, env):
 		self.__env = env
@@ -159,7 +161,7 @@ class Plate(EnvObj):
 		ret = self.getReward(car)
 
 		if ret!= 0:
-				self.__env.moveReward(self.id, car)
+				self.__env.moveReward(self.trail, car)
 		return ret
 
 class Car(EnvObj):
