@@ -6,14 +6,14 @@ import math
 import random
 
 A_NONE = 0
-A_RIGHT = 1
-A_ACC = 2
-A_LEFT = 3
-A_BRK = 4
-A_RIGHT_ACC = 5
-A_RIGHT_BRK = 6
-A_LEFT_ACC = 7
-A_LEFT_BRK = 8
+# A_RIGHT = 1
+A_ACC = 1
+# A_LEFT = 3
+A_BRK = 2
+A_RIGHT_ACC = 3
+A_RIGHT_BRK = 4
+A_LEFT_ACC = 5
+A_LEFT_BRK = 6
 
 class AiInterface:
 

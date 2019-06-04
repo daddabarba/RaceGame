@@ -1,5 +1,6 @@
 import pygame as pg
 import numpy as np
+import math
 import threading as thread
 
 import pars
@@ -241,10 +242,10 @@ class Car(EnvObj):
 		else:
 			self.a = 0
 
-		if (action==AII.A_LEFT or action==AII.A_LEFT_ACC or action==AII.A_LEFT_BRK):
-			self.__direction = np.dot(self.ROTATE_L, self.__direction)
-		elif (action==AII.A_RIGHT or action==AII.A_RIGHT_ACC or action==AII.A_RIGHT_BRK):
-			self.__direction = np.dot(self.ROTATE_R, self.__direction)
+		# if (action==AII.A_LEFT or action==AII.A_LEFT_ACC or action==AII.A_LEFT_BRK):
+		#	self.__direction = np.dot(self.ROTATE_L, self.__direction)
+		# elif (action==AII.A_RIGHT or action==AII.A_RIGHT_ACC or action==AII.A_RIGHT_BRK):
+		#	self.__direction = np.dot(self.ROTATE_R, self.__direction)
 
 
 		bumpWalls = [wall.collides(self) for wall in walls]
@@ -260,7 +261,21 @@ class Car(EnvObj):
 		else:
 			self.v /= self.V_FACTOR
 
-		self.__position = np.round_(self.__position + self.__direction*self.v)
+		if action==AII.A_ACC or action==AII.A_BRK:
+			self.__position = np.round_(self.__position + self.__direction*self.v)
+		elif action!=AII.A_NONE:
+			# print("norm D: ", np.linalg.norm(self.__direction),"\t dt*V: ", self.v)
+
+			switch = np.array([1,-1]) * (1 if (action==AII.A_RIGHT_ACC or action==AII.A_RIGHT_BRK) else -1)
+
+			r = self.__direction[::-1]*pars.L_TURN*switch
+			P = self.__direction*pars.DT*self.v + r*(-math.sqrt((pars.L_TURN**2)*(pars.L_TURN**2 - (pars.DT*self.v)**2))/(pars.L_TURN**2) + 1)
+			D = ((P-r)[::-1])/pars.L_TURN*switch
+
+			print("prev pos: ", self.__position, "\t new pos: ", self.__position + P, "\t delta: ", P)
+			self.__position = self.__position + 100*P
+			self.__direction = D
+		# self.__position = np.round_(self.__position + self.__direction*self.v)
 
 		for bumpWall in bumpWalls:
 			if bumpWall:

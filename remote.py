@@ -36,21 +36,19 @@ class Remote:
 		keys = pg.key.get_pressed()
 
 		if keys[pg.K_RIGHT] and keys[pg.K_UP]:
-			self.__action(5)
-		elif keys[pg.K_RIGHT] and keys[pg.K_DOWN]:
-			self.__action(6)
-		elif keys[pg.K_LEFT] and keys[pg.K_UP]:
-			self.__action(7)
-		elif keys[pg.K_LEFT] and keys[pg.K_DOWN]:
-			self.__action(8)
-		elif keys[pg.K_RIGHT]:
-			self.__action(1)
-		elif keys[pg.K_UP]:
-			self.__action(2)
-		elif keys[pg.K_LEFT]:
 			self.__action(3)
-		elif keys[pg.K_DOWN]:
+		elif keys[pg.K_RIGHT] and keys[pg.K_DOWN]:
 			self.__action(4)
+		elif keys[pg.K_LEFT] and keys[pg.K_UP]:
+			self.__action(5)
+		elif keys[pg.K_LEFT] and keys[pg.K_DOWN]:
+			self.__action(6)
+		elif keys[pg.K_UP]:
+			self.__action(1)
+		elif keys[pg.K_DOWN]:
+			self.__action(2)
+		else:
+			self.__action(0)
 
 		self.__state(1)
 		self.__reward(1)
