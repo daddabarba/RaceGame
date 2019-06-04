@@ -9,11 +9,6 @@ import environmentObjects as eo
 
 import pars
 
-BG_DEF_COL = (150, 150, 150)
-DEF_SIZE = 5
-DEF_CARS = 1
-DEF_DELAY = 100
-
 class Game:
 
 	def __init__(self):
@@ -25,7 +20,7 @@ class Game:
 
 
 
-	def run(self, delay=DEF_DELAY):
+	def run(self, delay=pars.DEF_DELAY):
 
 		run = True
 		while(run):
@@ -37,7 +32,7 @@ class Game:
 					run = False
 					continue
 
-			self.__win.fill(BG_DEF_COL)
+			self.__win.fill(pars.BG_DEF_COL)
 			self.render()
 
 			pg.display.update()
@@ -149,11 +144,16 @@ class RaceGame(Game):
 			wall.draw()
 
 	def addCars(self, cars):
+
+		numStates = 0
+		for trail in self.__plates:
+			numStates += len(trail)
+
 		for car in cars:
 			self.__cars.append(car)
 			car.setWindow(self.getWin())
 			car.setPosition(self.__start_position)
-			car.setNumStates(len(self.__plates))
+			car.setNumStates(numStates)
 			car.setEnv(self)
 			car.start()
 			for plate in self.__plates[self.__step]:
@@ -165,8 +165,9 @@ class RaceGame(Game):
 
 def main(argv):
 
-	size = DEF_SIZE
-	num_cars = DEF_CARS
+	size = pars.DEF_SIZE
+	num_cars = pars.DEF_CARS
+	delay = pars.DEF_DELAY
 
 	if len(argv)>2:
 		i = 2
@@ -175,6 +176,8 @@ def main(argv):
 				size = int(argv[i+1])
 			elif argv[i] == "--n-cars":
 				num_cars = int(argv[i+1])
+			elif argv[i] == "--delay":
+				delay = int(argv[i+1])
 			else:
 				print("option not recognized")
 				exit(-1)
@@ -192,7 +195,6 @@ def main(argv):
 
 	game.addCars(cars)
 
-	game.run()
-
+	game.run(delay=delay)
 if __name__ == '__main__':
 	main(sys.argv)
