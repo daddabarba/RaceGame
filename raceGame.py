@@ -122,12 +122,12 @@ class RaceGame(Game):
 		if not car.loopDirection:
 			car.loopDirection = 1 if trail==self.__step else -1
 			for plate in self.__plates[self.__step*car.loopDirection*-1]:
-				plate.setReward(car, 0)
+				plate.setReward(car, pars.BASE_R)
 
 		for plate in self.__plates[(trail+car.loopDirection*self.__step)%len(self.__plates)]:
 			plate.setReward(car, self.__plates[trail][0].getReward(car))
 		for plate in self.__plates[trail]:
-			plate.setReward(car,0)
+			plate.setReward(car,pars.BASE_R)
 
 
 	def render(self):

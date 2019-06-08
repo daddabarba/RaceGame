@@ -130,7 +130,7 @@ class Plate(EnvObj):
 
 		self.cars_on = []
 
-		if any(x!=0 for x in list(self.__r.values())):
+		if any(x!=pars.BASE_R for x in list(self.__r.values())):
 			self.setColor(TRACK_CHPT_COL)
 		elif any(self.carsOn(cars)):
 			self.setColor(TRACK_ON_COl)
@@ -155,14 +155,14 @@ class Plate(EnvObj):
 	def getReward(self, car):
 
 		if not car in self.__r.keys():
-				return 0
+				return pars.BASE_R
 		return self.__r[car]
 
 	def assignReward(self, car):
 
 		ret = self.getReward(car)
 
-		if ret!= 0:
+		if ret!=pars.BASE_R:
 				self.__env.moveReward(self.trail, car)
 		return ret
 
@@ -264,15 +264,12 @@ class Car(EnvObj):
 		if action==AII.A_ACC or action==AII.A_BRK:
 			self.__position = np.round_(self.__position + self.__direction*self.v)
 		elif action!=AII.A_NONE:
-			# print("norm D: ", np.linalg.norm(self.__direction),"\t dt*V: ", self.v)
-
 			switch = np.array([1,-1]) * (1 if (action==AII.A_RIGHT_ACC or action==AII.A_RIGHT_BRK) else -1)
 
 			r = self.__direction[::-1]*pars.L_TURN*switch
 			P = self.__direction*pars.DT*self.v + r*(-math.sqrt((pars.L_TURN**2)*(pars.L_TURN**2 - (pars.DT*self.v)**2))/(pars.L_TURN**2) + 1)
 			D = ((P-r)[::-1])/pars.L_TURN*switch
 
-			print("prev pos: ", self.__position, "\t new pos: ", self.__position + P, "\t delta: ", P)
 			self.__position = self.__position + 100*P
 			self.__direction = D
 		# self.__position = np.round_(self.__position + self.__direction*self.v)
