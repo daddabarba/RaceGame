@@ -11,12 +11,12 @@ import Geometry as geom
 
 import copy
 
-WALL_DEF_COL = (255,0,0)
-TRACK_DEF_COL = (0, 150, 0)
-TRACK_ON_COl = (0,150,80)
-TRACK_CHPT_COL = (20,20,150)
-TRACK_NEG_COL = (150,20,20)
-CAR_DEF_COL = (0,0,0)
+WALL_DEF_COL = (50,50,50)
+TRACK_DEF_COL = (75, 175, 75)
+TRACK_ON_COl = (75,175,145)
+TRACK_CHPT_COL = (75,75,175)
+TRACK_NEG_COL = (175, 75, 75)
+CAR_DEF_COL = (50,50,50)
 
 class EnvObj:
 
