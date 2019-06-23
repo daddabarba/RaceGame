@@ -14,7 +14,8 @@ import copy
 WALL_DEF_COL = (255,0,0)
 TRACK_DEF_COL = (0, 150, 0)
 TRACK_ON_COl = (0,150,80)
-TRACK_CHPT_COL = (150,0,0)
+TRACK_CHPT_COL = (20,20,150)
+TRACK_NEG_COL = (150,20,20)
 CAR_DEF_COL = (0,0,0)
 
 class EnvObj:
@@ -130,8 +131,10 @@ class Plate(EnvObj):
 
 		self.cars_on = []
 
-		if any(x!=pars.BASE_R for x in list(self.__r.values())):
+		if any(x==pars.R_CHPT for x in list(self.__r.values())):
 			self.setColor(TRACK_CHPT_COL)
+		elif any(x==pars.R_BACK for x in list(self.__r.values())):
+			self.setColor(TRACK_NEG_COL)
 		elif any(self.carsOn(cars)):
 			self.setColor(TRACK_ON_COl)
 		else:

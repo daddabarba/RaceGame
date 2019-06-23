@@ -1,5 +1,6 @@
 R_BUMP = -5
 R_CHPT = 100
+R_BACK = -100
 BASE_R = -1
 
 FINE_ROT_SENSOR = 4
