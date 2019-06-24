@@ -246,18 +246,18 @@ class Car(EnvObj):
 
 		# if n_angles and n_pieces and l_pieces:
 
-		# 	self.__angles = []
-		# 	for i in range(n_angles):
-		# 		deg = np.pi*2/n_angles*i
+		#	self.__angles = []
+		#	for i in range(n_angles):
+		#		deg = np.pi*2/n_angles*i
 
-		# 		ang = {}
+		#		ang = {}
 
-		# 		ang["cos"] = np.cos(deg)
-		# 		ang["sin"] = np.sin(deg)
-		# 		ang["tan"] = ang["sin"]/ang["cos"] if ang["cos"]!=0 else None
-		# 		ang["cotan"] = ang["cos"]/ang["sin"] if ang["sin"]!=0 else None
+		#		ang["cos"] = np.cos(deg)
+		#		ang["sin"] = np.sin(deg)
+		#		ang["tan"] = ang["sin"]/ang["cos"] if ang["cos"]!=0 else None
+		#		ang["cotan"] = ang["cos"]/ang["sin"] if ang["sin"]!=0 else None
 
-		# 		self.__angles.append(ang)
+		#		self.__angles.append(ang)
 
 		self.a = 0.0
 		self.v = 0.0
@@ -297,10 +297,10 @@ class Car(EnvObj):
 		super(Car, self).setWindow(window)
 
 	def setNumStates(self, numStates):
-		if not self.__angles:
+		if not self.n_angles:
 			self.__stateSocket = AII.StateInterface(self.id, self.base, numStates*self.fine_rot_sensor)
 		else:
-			self.__stateSocket = AII.StateInterface(self.id, self.base, np.power(self.n_pieces+1, len(self.__angles))-1)
+			self.__stateSocket = AII.StateInterface(self.id, self.base, int(np.power(self.n_pieces+1, self.n_angles)-1))
 
 	def setEnv(self, env):
 		self.__env = env
@@ -387,7 +387,7 @@ class Car(EnvObj):
 					dists.append(min_t)
 				state = 0
 				digit = 1
-				print(dists)
+
 				for dist in dists:
 					state += digit*int(dist/self.l_pieces if dist/self.l_pieces<self.n_pieces else self.n_pieces)
 					digit *= self.n_pieces+1
