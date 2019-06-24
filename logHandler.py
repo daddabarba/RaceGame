@@ -8,11 +8,13 @@ serv = tcp.Server(port=sys.argv[1], size=8, block=True, medium=socket.AF_UNIX)
 serv.start()
 
 R = []
+i = 0
 
 while True:
 	try:
 		r = struct.unpack('d', serv.get())[0]
-		print("reward: " + str(r))
+		print("%d) reward: "%i + str(r))
+		i+=1
 
 		R.append(r)
 	except:
