@@ -18,5 +18,6 @@ while True:
 	except:
 		break
 
-with open(sys.argv[1].split("/")[-1]+".txt", "w") as f:
-	f.write(str(R))
+if len(sys.argv)==3 and (sys.argv[2]=="True" or sys.argv[2]=="true"):
+	with open(sys.argv[1].split("/")[-1]+".txt", "w") as f:
+		f.write(str(R))
