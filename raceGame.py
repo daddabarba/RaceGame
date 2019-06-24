@@ -117,6 +117,9 @@ class RaceGame(Game):
 
 		return None
 
+	def getWalls(self):
+		return self.__walls
+
 	def moveReward(self, trail, car):
 		
 		if not car.loopDirection:
@@ -177,20 +180,30 @@ def main(argv):
 	size = pars.DEF_SIZE
 	num_cars = pars.DEF_CARS
 	delay = pars.DEF_DELAY
+	absStates = {}
 
 	if len(argv)>2:
 		i = 2
 		while i<len(argv): 
 			if argv[i] == "--size":
 				size = int(argv[i+1])
+				i+=2
 			elif argv[i] == "--n-cars":
 				num_cars = int(argv[i+1])
+				i+=2
 			elif argv[i] == "--delay":
 				delay = int(argv[i+1])
+				i+=2
+			elif argv[i] == "--abs-state":
+				car = int(argv[i+1])
+				n_angles = int(argv[i+2])
+				n_pieces = int(argv[i+3])
+				l_pieces = float(argv[i+4])
+				absStates[car] = (n_angles, n_pieces, l_pieces)
+				i+=5
 			else:
 				print("option not recognized")
 				exit(-1)
-			i+=2
 
 	map = {}
 	map["size"] = (size,size)
@@ -200,7 +213,10 @@ def main(argv):
 
 	cars = []
 	for i in range(num_cars):
-		cars.append(eo.Car(i, argv[1], 50, (500,500)))
+		if not i in absStates.keys():
+			cars.append(eo.Car(i, argv[1], 50, (500,500)))
+		else:
+			cars.append(eo.Car(i, argv[1], 50, (500,500), n_angles=absStates[i][0], n_pieces=absStates[i][1], l_pieces=absStates[i][2]))
 
 	game.addCars(cars)
 

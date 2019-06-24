@@ -105,6 +105,56 @@ class Wall(EnvObj):
 
 		return newS
 
+	def getDistance(self, O, a):
+
+
+		if a["tan"]==None:
+
+			if self.__direction==1 or ((self.__start[1]-O[1])*a["sin"])<0:
+				return None
+
+			t = abs(self.__start[1]-O[1])
+			x = O[0]
+
+			if x>max(self.__start[0], self.__end[0]) or x<min(self.__start[0], self.__end[0]):
+				return None
+
+		if a["cotan"]==None:
+
+			if self.__direction==0 or ((self.__start[0]-O[0])*a["cos"])<0:
+				return None
+
+			t = abs(self.__start[0]-O[0])
+			y = O[1]
+
+			if y>max(self.__start[1], self.__end[1]) or y<min(self.__start[1], self.__end[1]):
+				return None
+
+		if self.__direction==1:
+
+			d_x = self.__start[0]-O[0]
+			t = d_x/a["cos"]
+
+			y = O[1] + d_x*a["tan"]
+
+			if y>max(self.__start[1], self.__end[1]) or y<min(self.__start[1], self.__end[1]):
+				return None
+
+		else:
+
+			d_y = self.__start[1]-O[1]
+			t = d_y/a["sin"]
+
+			x = O[0] + d_y*a["cotan"]
+
+			if x>max(self.__start[0], self.__end[0]) or x<min(self.__start[0], self.__end[0]):
+				return None
+
+		if t<0:
+			return None
+
+		return t
+
 class Plate(EnvObj):
 
 	def __init__(self, start, width, height, color = TRACK_DEF_COL):
@@ -171,7 +221,7 @@ class Plate(EnvObj):
 
 class Car(EnvObj):
 
-	def __init__(self, id, base, radius, initial_position, fine_rot_sensor=pars.FINE_ROT_SENSOR, initial_direction = (0, 1), color = CAR_DEF_COL):
+	def __init__(self, id, base, radius, initial_position, fine_rot_sensor=pars.FINE_ROT_SENSOR, initial_direction=(0, 1), n_angles=None, n_pieces=None, l_pieces=None, color=CAR_DEF_COL):
 
 		super(Car,self).__init__(color)
 
@@ -187,6 +237,26 @@ class Car(EnvObj):
 
 		self.__direction = np.array(initial_direction)
 		self.__direction = self.__direction/np.linalg.norm(self.__direction)
+
+		self.__angles = None
+
+		self.n_pieces = n_pieces
+		self.l_pieces = l_pieces
+
+		if n_angles and n_pieces and l_pieces:
+
+			self.__angles = []
+			for i in range(n_angles):
+				deg = np.pi*2/n_angles*i
+
+				ang = {}
+
+				ang["cos"] = np.cos(deg)
+				ang["sin"] = np.sin(deg)
+				ang["tan"] = ang["sin"]/ang["cos"] if ang["cos"]!=0 else None
+				ang["cotan"] = ang["cos"]/ang["sin"] if ang["sin"]!=0 else None
+
+				self.__angles.append(ang)
 
 		self.a = 0.0
 		self.v = 0.0
@@ -226,7 +296,10 @@ class Car(EnvObj):
 		super(Car, self).setWindow(window)
 
 	def setNumStates(self, numStates):
-		self.__stateSocket = AII.StateInterface(self.id, self.base, numStates*self.fine_rot_sensor)
+		if not self.__angles:
+			self.__stateSocket = AII.StateInterface(self.id, self.base, numStates*self.fine_rot_sensor)
+		else:
+			self.__stateSocket = AII.StateInterface(self.id, self.base, np.power(self.n_pieces+1, len(self.__angles))-1)
 
 	def setEnv(self, env):
 		self.__env = env
@@ -289,9 +362,23 @@ class Car(EnvObj):
 		self.__rewardSocket.sendReward()
 		if self.__stateSocket:
 
-			state = plate.id*self.fine_rot_sensor
-			orientation = geom.angVec(self.__direction)
-			state += int(orientation/(360/self.fine_rot_sensor))
+			if not self.__angles:
+				state = plate.id*self.fine_rot_sensor
+				orientation = geom.angVec(self.__direction)
+				state += int(orientation/(360/self.fine_rot_sensor))
+			else:
+				dists = []
+				for ang in self.__angles:
+					min_t = None
+					for wall in self.__env.getWalls():
+						t = wall.getDistance(self.__position, ang)
+						min_t = t if (not min_t or (t and t<min_t)) else min_t
+					dists.append(min_t)
+				state = 0
+				digit = 1
+				for dist in dists:
+					state += digit*int(dist/self.l_pieces if dist/self.l_pieces<self.n_pieces else self.n_pieces)
+					digit *= self.n_pieces+1
 
 			self.__stateSocket.setState(state)
 			self.__stateSocket.sendState()
