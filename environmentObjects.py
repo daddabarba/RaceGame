@@ -300,7 +300,7 @@ class Car(EnvObj):
 		if not self.n_angles:
 			self.__stateSocket = AII.StateInterface(self.id, self.base, numStates*self.fine_rot_sensor)
 		else:
-			self.__stateSocket = AII.StateInterface(self.id, self.base, int(np.power(self.n_pieces+1, self.n_angles)-1))
+			self.__stateSocket = AII.StateInterface(self.id, self.base, int(np.power(self.n_pieces+1, self.n_angles)))
 
 	def setEnv(self, env):
 		self.__env = env
