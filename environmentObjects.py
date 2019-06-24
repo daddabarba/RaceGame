@@ -242,21 +242,22 @@ class Car(EnvObj):
 
 		self.n_pieces = n_pieces
 		self.l_pieces = l_pieces
+		self.n_angles = n_angles
 
-		if n_angles and n_pieces and l_pieces:
+		# if n_angles and n_pieces and l_pieces:
 
-			self.__angles = []
-			for i in range(n_angles):
-				deg = np.pi*2/n_angles*i
+		# 	self.__angles = []
+		# 	for i in range(n_angles):
+		# 		deg = np.pi*2/n_angles*i
 
-				ang = {}
+		# 		ang = {}
 
-				ang["cos"] = np.cos(deg)
-				ang["sin"] = np.sin(deg)
-				ang["tan"] = ang["sin"]/ang["cos"] if ang["cos"]!=0 else None
-				ang["cotan"] = ang["cos"]/ang["sin"] if ang["sin"]!=0 else None
+		# 		ang["cos"] = np.cos(deg)
+		# 		ang["sin"] = np.sin(deg)
+		# 		ang["tan"] = ang["sin"]/ang["cos"] if ang["cos"]!=0 else None
+		# 		ang["cotan"] = ang["cos"]/ang["sin"] if ang["sin"]!=0 else None
 
-				self.__angles.append(ang)
+		# 		self.__angles.append(ang)
 
 		self.a = 0.0
 		self.v = 0.0
@@ -362,20 +363,31 @@ class Car(EnvObj):
 		self.__rewardSocket.sendReward()
 		if self.__stateSocket:
 
-			if not self.__angles:
+			if not self.n_angles:
 				state = plate.id*self.fine_rot_sensor
 				orientation = geom.angVec(self.__direction)
 				state += int(orientation/(360/self.fine_rot_sensor))
 			else:
 				dists = []
-				for ang in self.__angles:
+				for i in range(self.n_angles):
 					min_t = None
+
+					deg = np.pi*2/self.n_angles*i + geom.angVec(self.__direction)/180*np.pi
+
+					ang = {}
+
+					ang["cos"] = np.cos(deg)
+					ang["sin"] = np.sin(deg)
+					ang["tan"] = ang["sin"]/ang["cos"] if ang["cos"]!=0 else None
+					ang["cotan"] = ang["cos"]/ang["sin"] if ang["sin"]!=0 else None
+
 					for wall in self.__env.getWalls():
 						t = wall.getDistance(self.__position, ang)
 						min_t = t if (not min_t or (t and t<min_t)) else min_t
 					dists.append(min_t)
 				state = 0
 				digit = 1
+				print(dists)
 				for dist in dists:
 					state += digit*int(dist/self.l_pieces if dist/self.l_pieces<self.n_pieces else self.n_pieces)
 					digit *= self.n_pieces+1
