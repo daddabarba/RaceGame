@@ -129,17 +129,26 @@ class RaceGame(Game):
 			for plate in self.__plates[self.__step*car.loopDirection]:
 				plate.setReward(car, pars.R_BACK)
 
-		for plate in self.__plates[(trail+car.loopDirection*self.__step)%len(self.__plates)]:
-			plate.setReward(car, pars.R_CHPT)
-		for plate in self.__plates[trail]:
-			plate.setReward(car,pars.BASE_R)
+		# for plate in self.__plates[(trail+car.loopDirection*self.__step)%len(self.__plates)]:
+		#	plate.setReward(car, pars.R_CHPT)
+		# for plate in self.__plates[trail]:
+		#	plate.setReward(car,pars.BASE_R)
 			
-		for plate in self.__plates[(trail+car.loopDirection*self.__step*-1)%len(self.__plates)]:
+		# for plate in self.__plates[(trail+car.loopDirection*self.__step*-1)%len(self.__plates)]:
+		#	plate.setReward(car, pars.R_BACK)
+		# for plate in self.__plates[(trail-2*self.__step*car.loopDirection)%len(self.__plates)]:
+		#	plate.setReward(car, pars.BASE_R)
+		# for plate in self.__plates[(trail+2*self.__step*car.loopDirection)%len(self.__plates)]:
+		#	plate.setReward(car, pars.BASE_R)
+
+		for group in self.__plates:
+			for plate in group:
+				plate.setReward(car, pars.BASE_R)
+
+		for plate in self.__plates[(trail+car.loopDirection*self.__step)%len(self.__plates)]:
 			plate.setReward(car, pars.R_BACK)
-		for plate in self.__plates[(trail-2*self.__step*car.loopDirection)%len(self.__plates)]:
-			plate.setReward(car, pars.BASE_R)
-		for plate in self.__plates[(trail+2*self.__step*car.loopDirection)%len(self.__plates)]:
-			plate.setReward(car, pars.BASE_R)
+		for plate in self.__plates[(trail+car.loopDirection*self.__step*-1)%len(self.__plates)]:
+			plate.setReward(car, pars.R_CHPT)
 
 
 	def render(self):
