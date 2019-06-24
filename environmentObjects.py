@@ -216,7 +216,7 @@ class Plate(EnvObj):
 		ret = self.getReward(car)
 
 		# if ret!=pars.BASE_R:
-		# 		self.__env.moveReward(self.trail, car)
+		#		self.__env.moveReward(self.trail, car)
 		return ret
 
 class Car(EnvObj):
@@ -359,8 +359,6 @@ class Car(EnvObj):
 
 		plate = self.__env.getPlate(self)
 
-		self.__env.moveReward(plate.trail, self)
-
 		self.__rewardSocket.addReward(plate.assignReward(self))
 		self.__rewardSocket.sendReward()
 		if self.__stateSocket:
@@ -396,6 +394,8 @@ class Car(EnvObj):
 
 			self.__stateSocket.setState(state)
 			self.__stateSocket.sendState()
+
+		self.__env.moveReward(plate.trail, self)
 
 	def draw(self, walls):
 
