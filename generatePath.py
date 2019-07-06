@@ -4,7 +4,7 @@ import copy
 
 actions = ["d","u","l","r"]
 
-def generateTrack(size, min_len=2):
+def generateTrack(size, min_len=6):
 
 	map = np.zeros((size,size))
 
