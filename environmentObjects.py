@@ -157,7 +157,7 @@ class Wall(EnvObj):
 
 class Plate(EnvObj):
 
-	def __init__(self, start, width, height, color = TRACK_DEF_COL):
+	def __init__(self, start, width, height, color = TRACK_DEF_COL, bestMove = None):
 
 		super(Plate, self).__init__(color)
 
@@ -169,6 +169,8 @@ class Plate(EnvObj):
 
 		self.setRec(pg.Rect(start[0],start[1],width,height))
 		self.cars_on = []
+
+		self.bestMove = bestMove
 
 	def setID(self, id, trail):
 		self.id = id
@@ -355,7 +357,7 @@ class Car(EnvObj):
 			if bumpWall:
 				self.__position = bumpWall.boundSpace(self, self.__position)
 
-	def __connect(self):
+	def connect(self):
 
 		plate = self.__env.getPlate(self)
 
@@ -414,7 +416,7 @@ class Car(EnvObj):
 				(self.__position - 1.2*self.__radius*self.__direction).astype(int), 
 				int(self.__radius/2))
 
-			self.__connect()
+			self.connect()
 
 	def getPosition(self):
 		return self.__position
@@ -424,3 +426,58 @@ class Car(EnvObj):
 
 	def __del__(self):
 		del self.__actionListener
+
+
+class CheatCar(Car):
+
+	def __init__(self, id, base, radius, initial_position, fine_rot_sensor=pars.FINE_ROT_SENSOR, initial_direction=(0, 1), n_angles=None, n_pieces=None, l_pieces=None, color=CAR_DEF_COL):
+
+		super(CheatCar, self).__init__(id, base, radius, initial_position, fine_rot_sensor, initial_direction, n_angles, n_pieces, l_pieces, color)
+
+		self.__direction_socket = AII.StateInterface(self.id, self.base, fine_rot_sensor, suff="_d")
+		self.__move_socket = AII.StateInterface(self.id, self.base, 4, suff="_m")
+
+	def setNumStates(self, numStates):
+		self._Car__stateSocket = AII.StateInterface(self.id, self.base, numStates)
+
+
+	def connect(self):
+
+		plate = self._Car__env.getPlate(self)
+
+		self._Car__rewardSocket.addReward(plate.assignReward(self))
+		self._Car__rewardSocket.sendReward()
+		if self._Car__stateSocket:
+
+			state = plate.id
+			orientation = geom.angVec(self._Car__direction)
+			orientation = int(orientation/(360/self.fine_rot_sensor))
+
+			self._Car__stateSocket.setState(state)
+			self.__direction_socket.setState(orientation)
+			self.__move_socket.setState(plate.bestMove)
+			self._Car__stateSocket.sendState()
+			self.__direction_socket.sendState()
+			self.__move_socket.sendState()
+
+		self._Car__env.moveReward(plate.trail, self)
+
+	def start(self):
+
+		t1 = thread.Thread(target = self._Car__actionListener.start)
+		t2 = thread.Thread(target = self._Car__stateSocket.start)
+		t3 = thread.Thread(target = self._Car__rewardSocket.start)
+		t4 = thread.Thread(target = self.__direction_socket.start)
+		t5 = thread.Thread(target = self.__move_socket.start)
+
+		t1.start()
+		t2.start()
+		t3.start()
+		t4.start()
+		t5.start()
+
+		t1.join()
+		t2.join()
+		t3.join()
+		t4.join()
+		t5.join()

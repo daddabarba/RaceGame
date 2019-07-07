@@ -75,11 +75,20 @@ class RaceGame(Game):
 			ul = np.array([square_size*cp[0], square_size*cp[1]])
 			dr = np.array([square_size*(cp[0]+1), square_size*(cp[1]+1)])
 
+			if succ[0]==cp[0] and succ[1]<cp[1]:
+				bestMove = 1
+			elif succ[0]==cp[0] and succ[1]>cp[1]:
+				bestMove = 3
+			elif succ[1]==cp[1] and succ[0]<cp[0]:
+				bestMove = 2
+			else:
+				bestMove = 0
+
 			inner_count = 0
 			self.__plates.append([])
 			for r in range(precision):
 				for c in range(precision):
-					self.__plates[-1].append(eo.Plate(ul+np.array([c,r])*shift, square_size/precision, square_size/precision))
+					self.__plates[-1].append(eo.Plate(ul+np.array([c,r])*shift, square_size/precision, square_size/precision, bestMove = bestMove))
 					self.__plates[-1][-1].setID(i*precision*precision+inner_count, i)
 					self.__plates[-1][-1].setWindow(self.getWin())
 					self.__plates[-1][-1].setEnv(self)
@@ -190,6 +199,7 @@ def main(argv):
 	num_cars = pars.DEF_CARS
 	delay = pars.DEF_DELAY
 	absStates = {}
+	cheat = False
 
 	if len(argv)>2:
 		i = 2
@@ -210,6 +220,9 @@ def main(argv):
 				l_pieces = float(argv[i+4])
 				absStates[car] = (n_angles, n_pieces, l_pieces)
 				i+=5
+			elif argv[i] == "--cheat":
+				cheat = True
+				i+=1
 			else:
 				print("option not recognized")
 				exit(-1)
@@ -222,10 +235,13 @@ def main(argv):
 
 	cars = []
 	for i in range(num_cars):
-		if not i in absStates.keys():
-			cars.append(eo.Car(i, argv[1], 50, (500,500)))
+		if cheat:
+			cars.append(eo.CheatCar(i, argv[1], 50, (500,500)))
 		else:
-			cars.append(eo.Car(i, argv[1], 50, (500,500), n_angles=absStates[i][0], n_pieces=absStates[i][1], l_pieces=absStates[i][2]))
+			if not i in absStates.keys():
+				cars.append(eo.Car(i, argv[1], 50, (500,500)))
+			else:
+				cars.append(eo.Car(i, argv[1], 50, (500,500), n_angles=absStates[i][0], n_pieces=absStates[i][1], l_pieces=absStates[i][2]))
 
 	game.addCars(cars)
 
