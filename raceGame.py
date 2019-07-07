@@ -76,9 +76,9 @@ class RaceGame(Game):
 			dr = np.array([square_size*(cp[0]+1), square_size*(cp[1]+1)])
 
 			if succ[0]==cp[0] and succ[1]<cp[1]:
-				bestMove = 1
-			elif succ[0]==cp[0] and succ[1]>cp[1]:
 				bestMove = 3
+			elif succ[0]==cp[0] and succ[1]>cp[1]:
+				bestMove = 1
 			elif succ[1]==cp[1] and succ[0]<cp[0]:
 				bestMove = 2
 			else:
