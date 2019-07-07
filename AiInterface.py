@@ -81,8 +81,8 @@ class RewardInterface(AiInterface):
 
 class StateInterface(AiInterface):
 
-	def __init__(self, id, base, numStates):
-		super(StateInterface, self).__init__(id, numStates, base+"_"+str(id) + "_s")
+	def __init__(self, id, base, numStates, suff="_s"):
+		super(StateInterface, self).__init__(id, numStates, base+"_"+str(id) + suff)
 		print("started state listener %d at port %s"%(self.id, str(self.getServer().getPort())))
 
 		self.__state = 0
