@@ -451,7 +451,6 @@ class CheatCar(Car):
 
 			state = plate.id
 			orientation = geom.angVec(self._Car__direction)
-			print("angle: ", orientation)
 			# orientation = int(orientation/(360/self.fine_rot_sensor))
 
 			self._Car__stateSocket.setState(state)

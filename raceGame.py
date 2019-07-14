@@ -20,10 +20,10 @@ class Game:
 
 
 
-	def run(self, delay=pars.DEF_DELAY):
+	def run(self, nLoops=None, delay=pars.DEF_DELAY):
 
-		run = True
-		while(run):
+		loop = 0
+		while(nLoops == None or loop<nLoops):
 
 			pg.time.delay(delay)
 
@@ -36,6 +36,7 @@ class Game:
 			self.render()
 
 			pg.display.update()
+			loop += 1
 
 	def render(self):
 		pass
@@ -200,6 +201,7 @@ def main(argv):
 	delay = pars.DEF_DELAY
 	absStates = {}
 	cheat = False
+	nLoops = None
 
 	if len(argv)>2:
 		i = 2
@@ -223,8 +225,11 @@ def main(argv):
 			elif argv[i] == "--cheat":
 				cheat = True
 				i+=1
+			elif argv[i] == "--n-loops":
+				nLoops = int(argv[i+1])
+				i+=2
 			else:
-				print("option not recognized")
+				print("option " + argv[i] +  " not recognized")
 				exit(-1)
 
 	map = {}
@@ -245,6 +250,6 @@ def main(argv):
 
 	game.addCars(cars)
 
-	game.run(delay=delay)
+	game.run(delay=delay, nLoops = nLoops)
 if __name__ == '__main__':
 	main(sys.argv)
