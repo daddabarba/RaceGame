@@ -367,7 +367,7 @@ class Car(EnvObj):
 
 			if not self.n_angles:
 				state = plate.id*self.fine_rot_sensor
-				orientation = geom.angVec(self.__direction)
+				orientation = (geom.angVec(self.__direction) + int(360/(2*self.fine_rot_sensor)))%360
 				state += int(orientation/(360/self.fine_rot_sensor))
 			else:
 				dists = []
@@ -435,7 +435,7 @@ class CheatCar(Car):
 		super(CheatCar, self).__init__(id, base, radius, initial_position, fine_rot_sensor, initial_direction, n_angles, n_pieces, l_pieces, color)
 
 		self.__direction_socket = AII.StateInterface(self.id, self.base, fine_rot_sensor, suff="_d")
-		self.__move_socket = AII.StateInterface(self.id, self.base, 4, suff="_m")
+		self.__move_socket = AII.StateInterface(self.id, self.base, 360, suff="_m")
 
 	def setNumStates(self, numStates):
 		self._Car__stateSocket = AII.StateInterface(self.id, self.base, numStates)
@@ -451,10 +451,11 @@ class CheatCar(Car):
 
 			state = plate.id
 			orientation = geom.angVec(self._Car__direction)
-			orientation = int(orientation/(360/self.fine_rot_sensor))
+			print("angle: ", orientation)
+			# orientation = int(orientation/(360/self.fine_rot_sensor))
 
 			self._Car__stateSocket.setState(state)
-			self.__direction_socket.setState(orientation)
+			self.__direction_socket.setState(int(orientation))
 			self.__move_socket.setState(plate.bestMove)
 			self._Car__stateSocket.sendState()
 			self.__direction_socket.sendState()

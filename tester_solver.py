@@ -57,7 +57,10 @@ class Remote:
 		self.__direction(1)
 		self.__move(1)
 
-		print("s: " + str(int.from_bytes(self.__state.get(), "little")) + " d: " + str(int.from_bytes(self.__direction.get(), "little")) + "\t r: " + str(struct.unpack('d', self.__reward.get())), "\t best move: ", int.from_bytes(self.__move.get(), "little"))
+		orientation = int.from_bytes(self.__direction.get(), "little")
+		bestMove = int.from_bytes(self.__move.get(), "little")
+
+		print("s: " + str(int.from_bytes(self.__state.get(), "little")) + " d: " + str(orientation) + "delta: " + str(orientation-bestMove*90) + "\t r: " + str(struct.unpack('d', self.__reward.get())), "\t best move: ", bestMove)
 
 
 def main(argv):

@@ -6,6 +6,8 @@ import struct
 import sys
 import time
 
+EPSILON = 1
+
 class Remote:
 
 	def __init__(self, port):
@@ -25,9 +27,9 @@ class Remote:
 		while(run):
 
 			# for event in pg.event.get():
-			# 	if event.type == pg.QUIT:
-			# 		run = False
-			# 		continue
+			#	if event.type == pg.QUIT:
+			#		run = False
+			#		continue
 			
 			self.action()
 			time.sleep(0.05)
@@ -37,31 +39,35 @@ class Remote:
 		# keys = pg.key.get_pressed()
 
 		direction = int.from_bytes(self.__direction.get(), "little")
-		move = int.from_bytes(self.__move.get(), "little")
+		move = int.from_bytes(self.__move.get(), "little")*90
 
-		toDo = (direction - move)%4
+		toDo = (direction - move)
 
-		if toDo==0:
+		while(toDo<0):
+			toDo += 360
+		toDo %= 360
+
+		if toDo>360-EPSILON or toDo<EPSILON:
 			self.__action(1)
-		elif toDo==1:
+		if toDo<180:
 			self.__action(5)
 		else:
 			self.__action(3)
 
 		# if keys[pg.K_RIGHT] and keys[pg.K_UP]:
-		# 	self.__action(3)
+		#	self.__action(3)
 		# elif keys[pg.K_RIGHT] and keys[pg.K_DOWN]:
-		# 	self.__action(4)
+		#	self.__action(4)
 		# elif keys[pg.K_LEFT] and keys[pg.K_UP]:
-		# 	self.__action(5)
+		#	self.__action(5)
 		# elif keys[pg.K_LEFT] and keys[pg.K_DOWN]:
-		# 	self.__action(6)
+		#	self.__action(6)
 		# elif keys[pg.K_UP]:
-		# 	self.__action(1)
+		#	self.__action(1)
 		# elif keys[pg.K_DOWN]:
-		# 	self.__action(2)
+		#	self.__action(2)
 		# else:
-		# 	self.__action(0)
+		#	self.__action(0)
 
 		self.__state(1)
 		self.__reward(1)
