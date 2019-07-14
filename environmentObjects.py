@@ -227,6 +227,8 @@ class Car(EnvObj):
 
 		super(Car,self).__init__(color)
 
+		self.started = False
+
 		self.id = id
 		self.base = base
 
@@ -283,6 +285,9 @@ class Car(EnvObj):
 
 	def start(self):
 		
+		if self.started:
+			return
+
 		t1 = thread.Thread(target = self.__actionListener.start)
 		t2 = thread.Thread(target = self.__stateSocket.start)
 		t3 = thread.Thread(target = self.__rewardSocket.start)
@@ -295,10 +300,15 @@ class Car(EnvObj):
 		t2.join()
 		t3.join()
 
+		self.started = True
+
 	def setWindow(self, window):
 		super(Car, self).setWindow(window)
 
 	def setNumStates(self, numStates):
+		if self.started:
+			return
+
 		if not self.n_angles:
 			self.__stateSocket = AII.StateInterface(self.id, self.base, numStates*self.fine_rot_sensor)
 		else:
@@ -438,6 +448,8 @@ class CheatCar(Car):
 		self.__move_socket = AII.StateInterface(self.id, self.base, 360, suff="_m")
 
 	def setNumStates(self, numStates):
+		if self.started:
+			return
 		self._Car__stateSocket = AII.StateInterface(self.id, self.base, numStates)
 
 
@@ -464,6 +476,9 @@ class CheatCar(Car):
 
 	def start(self):
 
+		if self.started:
+			return
+
 		t1 = thread.Thread(target = self._Car__actionListener.start)
 		t2 = thread.Thread(target = self._Car__stateSocket.start)
 		t3 = thread.Thread(target = self._Car__rewardSocket.start)
@@ -481,3 +496,5 @@ class CheatCar(Car):
 		t3.join()
 		t4.join()
 		t5.join()
+
+		self.started = True

@@ -202,6 +202,7 @@ def main(argv):
 	absStates = {}
 	cheat = False
 	nLoops = None
+	nTracks = 1
 
 	if len(argv)>2:
 		i = 2
@@ -228,15 +229,13 @@ def main(argv):
 			elif argv[i] == "--n-loops":
 				nLoops = int(argv[i+1])
 				i+=2
+			elif argv[i] == "--n-tracks":
+				nTracks = int(argv[i+1])
+				i+=2
 			else:
 				print("option " + argv[i] +  " not recognized")
 				exit(-1)
 
-	map = {}
-	map["size"] = (size,size)
-	map["trajectory"] = gen.generateTrack(size)
-
-	game = RaceGame(map)
 
 	cars = []
 	for i in range(num_cars):
@@ -248,8 +247,15 @@ def main(argv):
 			else:
 				cars.append(eo.Car(i, argv[1], 50, (500,500), n_angles=absStates[i][0], n_pieces=absStates[i][1], l_pieces=absStates[i][2]))
 
-	game.addCars(cars)
+	for i in range(nTracks):
+		map = {}
+		map["size"] = (size,size)
+		map["trajectory"] = gen.generateTrack(size)
 
-	game.run(delay=delay, nLoops = nLoops)
+		game = RaceGame(map)
+		game.addCars(cars)
+
+		game.run(delay=delay, nLoops = nLoops)
+
 if __name__ == '__main__':
 	main(sys.argv)
