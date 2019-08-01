@@ -3,3 +3,5 @@ __pycache__/*
 
 *.png
 *_log.txt
+
+data_*

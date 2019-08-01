@@ -6,7 +6,7 @@ import struct
 import sys
 import time
 
-EPSILON = 1
+EPSILON = 0
 
 class Remote:
 
@@ -15,11 +15,18 @@ class Remote:
 		# pg.display.set_mode((100,100))
 		# pg.display.set_caption("controller")
 
+		log_name = "im_data_"+port.split("/")[-1]
+
+		self.log = open(log_name, "w")
+		self.log.write("[")
+
+		print("connecting to ", port+"_a")
 		self.__action = tcp.Client(port + "_a", medium=socket.AF_UNIX)
 		self.__state = tcp.Client(port + "_s", medium=socket.AF_UNIX)
 		self.__reward = tcp.Client(port + "_r", medium=socket.AF_UNIX)
 		self.__direction = tcp.Client(port + "_d", medium=socket.AF_UNIX)
 		self.__move = tcp.Client(port + "_m", medium=socket.AF_UNIX)
+
 
 	def start(self):
 
@@ -31,8 +38,14 @@ class Remote:
 			#		run = False
 			#		continue
 			
-			self.action()
-			time.sleep(0.05)
+			try:
+				self.action()
+			except:
+				break
+			time.sleep(0.0005)
+
+		self.log.write("(-1, -1, -1)]")
+		self.log.close()
 
 	def action(self):
 		# pg.event.get()
@@ -49,10 +62,13 @@ class Remote:
 
 		if toDo>360-EPSILON or toDo<EPSILON:
 			self.__action(1)
+			action = 1
 		if toDo<180:
 			self.__action(5)
+			action = 5
 		else:
 			self.__action(3)
+			action = 3
 
 		# if keys[pg.K_RIGHT] and keys[pg.K_UP]:
 		#	self.__action(3)
@@ -74,7 +90,12 @@ class Remote:
 		self.__direction(1)
 		self.__move(1)
 
-		print("s: " + str(int.from_bytes(self.__state.get(), "little")) + " d: " + str(direction) + "\t r: " + str(struct.unpack('d', self.__reward.get())), "\t best move: ", move, "\t to do: ", toDo)
+		state = int.from_bytes(self.__state.get(), "little")
+		reward = struct.unpack('d', self.__reward.get())[0]
+
+		self.log.write("("+str(state)+", " + str(action) + ", "  + str(reward) + "), ")
+
+		print("s: " + str(state) + " d: " + str(direction) + "\t r: " + str(reward), "\t best move: ", move, "\t to do: ", toDo)
 
 
 def main(argv):
