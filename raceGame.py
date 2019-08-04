@@ -233,19 +233,22 @@ def main(argv):
 				nTracks = int(argv[i+1])
 				i+=2
 			else:
-				print("option " + argv[i] +  " not recognized")
+				print("option " + argv[i] +	 " not recognized")
 				exit(-1)
 
 
 	cars = []
+
+	Car = eo.Car
+
+	if cheat:
+		Car = eo.CheatCar
+
 	for i in range(num_cars):
-		if cheat:
-			cars.append(eo.CheatCar(i, argv[1], 50, (500,500)))
+		if not i in absStates.keys():
+			cars.append(Car(i, argv[1], 50, (500,500)))
 		else:
-			if not i in absStates.keys():
-				cars.append(eo.Car(i, argv[1], 50, (500,500)))
-			else:
-				cars.append(eo.Car(i, argv[1], 50, (500,500), n_angles=absStates[i][0], n_pieces=absStates[i][1], l_pieces=absStates[i][2]))
+			cars.append(Car(i, argv[1], 50, (500,500), n_angles=absStates[i][0], n_pieces=absStates[i][1], l_pieces=absStates[i][2]))
 
 	for i in range(nTracks):
 		map = {}

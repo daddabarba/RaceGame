@@ -447,12 +447,6 @@ class CheatCar(Car):
 		self.__direction_socket = AII.StateInterface(self.id, self.base, fine_rot_sensor, suff="_d")
 		self.__move_socket = AII.StateInterface(self.id, self.base, 360, suff="_m")
 
-	def setNumStates(self, numStates):
-		if self.started:
-			return
-		self._Car__stateSocket = AII.StateInterface(self.id, self.base, numStates)
-
-
 	def connect(self):
 
 		plate = self._Car__env.getPlate(self)
@@ -461,7 +455,35 @@ class CheatCar(Car):
 		self._Car__rewardSocket.sendReward()
 		if self._Car__stateSocket:
 
-			state = plate.id
+			if not self.n_angles:
+				state = plate.id*self.fine_rot_sensor
+				orientation = (geom.angVec(self._Car__direction) + int(360/(2*self.fine_rot_sensor)))%360
+				state += int(orientation/(360/self.fine_rot_sensor))
+			else:
+				dists = []
+				for i in range(self.n_angles):
+					min_t = None
+
+					deg = np.pi*2/self.n_angles*i + geom.angVec(self._Car__direction)/180*np.pi
+
+					ang = {}
+
+					ang["cos"] = np.cos(deg)
+					ang["sin"] = np.sin(deg)
+					ang["tan"] = ang["sin"]/ang["cos"] if ang["cos"]!=0 else None
+					ang["cotan"] = ang["cos"]/ang["sin"] if ang["sin"]!=0 else None
+
+					for wall in self._Car__env.getWalls():
+						t = wall.getDistance(self._Car__position, ang)
+						min_t = t if (not min_t or (t and t<min_t)) else min_t
+					dists.append(min_t)
+				state = 0
+				digit = 1
+
+				for dist in dists:
+					state += digit*int(dist/self.l_pieces if dist/self.l_pieces<self.n_pieces else self.n_pieces)
+					digit *= self.n_pieces+1
+
 			orientation = geom.angVec(self._Car__direction)
 			# orientation = int(orientation/(360/self.fine_rot_sensor))
 
