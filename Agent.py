@@ -89,11 +89,15 @@ class Remote(SarsaAgent):
 
 	def __init__(self, nStates, nActions, alpha, gamma, T, sock):
 
+		super(Remote, self).__init__(nStates, nActions, alpha, gamma, T)
+
 		self.__action = tcp.Client(sock + "_a", medium=socket.AF_UNIX)
 		self.__state = tcp.Client(sock + "_s", medium=socket.AF_UNIX)
 		self.__reward = tcp.Client(sock + "_r", medium=socket.AF_UNIX)
 
 		self.__log = tcp.Client(sock+"_log", medium=socket.AF_UNIX)
+
+		self.getState()
 
 	def start(self):
 
@@ -123,7 +127,7 @@ class Remote(SarsaAgent):
 
 	def getReward(self):
 		self.__reward(1)
-		r = struct.unpack('d', self.__reward.get())
+		r = struct.unpack('d', self.__reward.get())[0]
 
 		self.__log(r)
 		return r
@@ -138,4 +142,10 @@ class Remote(SarsaAgent):
 
 if __name__ == '__main__':
 	
-	a = ImitationAgent(int(sys.argv[1]), int(sys.argv[2]), float(sys.argv[3]), float(sys.argv[4]), float(sys.argv[5]), sys.argv[6])
+	if len(sys.argv[1])==7:
+		a = ImitationAgent(int(sys.argv[1]), int(sys.argv[2]), float(sys.argv[3]), float(sys.argv[4]), float(sys.argv[5]), sys.argv[6])
+	else:
+		a = Remote(int(sys.argv[1]), int(sys.argv[2]), float(sys.argv[3]), float(sys.argv[4]), float(sys.argv[5]), sys.argv[6])
+		a.load(sys.argv[7])
+		a.start()
+
