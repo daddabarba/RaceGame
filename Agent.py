@@ -3,6 +3,11 @@ import random as rand
 
 import dataTools as dt
 
+import TCPWrapper as tcp
+import socket
+import struct
+
+import time
 import sys
 
 class SarsaAgent:
@@ -79,6 +84,55 @@ class ImitationAgent(SarsaAgent):
 
 			e = rand.choice(self.transitions)
 			self.update(*e)
+
+class Remote(SarsaAgent):
+
+	def __init__(self, nStates, nActions, alpha, gamma, T, sock):
+
+		self.__action = tcp.Client(sock + "_a", medium=socket.AF_UNIX)
+		self.__state = tcp.Client(sock + "_s", medium=socket.AF_UNIX)
+		self.__reward = tcp.Client(sock + "_r", medium=socket.AF_UNIX)
+
+		self.__log = tcp.Client(sock+"_log", medium=socket.AF_UNIX)
+
+	def start(self):
+
+		run = True
+
+		s1 = self.getState()
+		a1 = self.makeAction(s1)
+		r = self.getReward()
+
+		while(run):
+
+			s2 = self.getState() 
+			a2 = self.makeAction(s2)
+
+			if s2<0:
+				break+
+
+			self.update(s1, a1, r, s2, a2)
+
+			r = self.getReward()
+			s1 = s2
+			a1 = a2
+
+	def getState(self):
+		self.__state(1)
+		return int.from_bytes(self.__state.get(), "little")
+
+	def getReward(self):
+		self.__reward(1)
+		r = struct.unpack('d', self.__reward.get())
+
+		self.__log(r)
+		return r
+
+	def makeAction(self, state):
+		a = self(state)
+
+		self.__action(a)
+		return a
 
 
 
