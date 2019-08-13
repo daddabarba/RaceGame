@@ -109,7 +109,7 @@ class Remote(SarsaAgent):
 			a2 = self.makeAction(s2)
 
 			if s2<0:
-				break+
+				break
 
 			self.update(s1, a1, r, s2, a2)
 
