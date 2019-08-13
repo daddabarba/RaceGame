@@ -320,6 +320,9 @@ class Car(EnvObj):
 	def setPosition(self, position):
 		self.__position = np.array(position)
 
+	def setDirection(self, direction):
+		self.__direction = np.array(direction)
+		
 	def handle_events(self, walls):
 
 		action = self.__actionListener.getAction()

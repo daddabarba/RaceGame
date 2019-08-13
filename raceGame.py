@@ -59,10 +59,20 @@ class RaceGame(Game):
 		self.__walls = []
 		self.__plates = []
 
+		self.initialDirection = [0,1]
+
 		square_size = int(self.getWin().get_width()/map["size"][0])
 		self.__start_position = (np.array([square_size*(map["trajectory"][0][0]+1), square_size*(map["trajectory"][0][1]+1)]) - square_size/2).astype(int)
 
 		trajectory = map["trajectory"]
+
+		if trajectory[1][0]==trajectory[0][0]:
+			self.initialDirection = np.array([0,1])
+		else:
+			self.initialDirection = np.array([1,0])
+		
+		if trajectory[1][0]>trajectory[0][0] or trajectory[1][1]>trajectory[0][1]:
+			self.initialDirection = -1*self.initialDirection
 
 		shift = np.array([square_size/precision, square_size/precision])
 
@@ -184,6 +194,7 @@ class RaceGame(Game):
 			self.__cars.append(car)
 			car.setWindow(self.getWin())
 			car.setPosition(self.__start_position)
+			car.setDirection(self.initialDirection)
 			car.setNumStates(numStates)
 			car.setEnv(self)
 			car.start()
