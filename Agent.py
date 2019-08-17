@@ -46,6 +46,7 @@ class SarsaAgent:
 		np.save(name+"_Q", self.QMat)
 
 	def load(self, name):
+		print("loading: ", name+"_Q.npy")
 		self.QMat = np.load(name+"_Q.npy")
 
 
