@@ -4,10 +4,10 @@ import struct
 
 import sys
 
+print("opening log handler at ", sys.argv[1])
+
 serv = tcp.Server(port=sys.argv[1], size=8, block=True, medium=socket.AF_UNIX)
 serv.start()
-
-print("opening log handler at ", sys.argv[1])
 
 R = []
 i = 0
