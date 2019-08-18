@@ -43,6 +43,7 @@ class SarsaAgent:
 		return e_x / e_x.sum()
 
 	def dump(self, name):
+		print("saving in: ", name+"_Q.npy")
 		np.save(name+"_Q", self.QMat)
 
 	def load(self, name):
