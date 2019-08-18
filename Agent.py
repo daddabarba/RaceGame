@@ -154,7 +154,7 @@ class Remote(SarsaAgent):
 
 if __name__ == '__main__':
 	
-	if len(sys.argv[1])==7:
+	if len(sys.argv)==7:
 		a = ImitationAgent(int(sys.argv[1]), int(sys.argv[2]), float(sys.argv[3]), float(sys.argv[4]), float(sys.argv[5]), sys.argv[6])
 	else:
 		a = Remote(int(sys.argv[1]), int(sys.argv[2]), float(sys.argv[3]), float(sys.argv[4]), float(sys.argv[5]), sys.argv[6], sys.argv[7])
