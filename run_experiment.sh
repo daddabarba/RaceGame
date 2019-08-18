@@ -2,7 +2,7 @@
 
 for i in $(seq 1 1 $1)
 do
-	python3 logHandler.py ~/serv_${i}_log true &
+	python3 logHandler.py ~/serv_${i}_0_log true &
 	pid_log=$!
 	python3 raceGame.py ~/serv_$i --n-loops $2 --delay 20 --abs-state 0 6 2 100 &
 	pid_env=$!
