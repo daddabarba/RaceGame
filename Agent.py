@@ -155,9 +155,9 @@ class RemoteOptions(Remote):
 
 	def __init__(self, nStates, nOptions, nActions, alpha, gamma, T, sock, name):
 
-		super(Remote, self).__init__(nStates, nActions, alpha, gamma, T, sock, name)
+		super(RemoteOptions, self).__init__(nStates, nOptions, alpha, gamma, T, sock, name)
 
-		self.nOptions = nOptions
+		self.nPrimitives = nActions
 
 		self.psi = np.random.rand(nStates, nOptions)
 		self.b = np.random.rand(nStates, nOptions, nActions)
@@ -166,14 +166,14 @@ class RemoteOptions(Remote):
 
 	def __call__(self, state):
 
-		if controller == None:
+		if self.controller == None:
 			self.controller = super(RemoteOptions, self).__call__(state)
 		else:
-			if rand.random() <= self.psi[state]:
+			if rand.random() <= self.psi[state][self.controller]:
 				self.controller = None
 				return self(state)
 
-		return np.random.choice(self.nActions, p=self.b[state][self.controller])
+		return np.random.choice(self.nPrimitives, p=self.b[state][self.controller])
 
 	def load(self, name):
 
@@ -186,9 +186,9 @@ class RemoteOptions(Remote):
 
 	def dump(self, name):
 
-		eta = np.zeros((self.nStates, self.nOptions))
+		eta = np.zeros((self.nStates, self.nActions))
 
-		for s in range(len(eta))
+		for s in range(len(eta)):
 			eta[s] = self.softmax(s)
 
 		np.save(name+"_eta", eta)
@@ -201,8 +201,12 @@ if __name__ == '__main__':
 	
 	if len(sys.argv)==7:
 		a = ImitationAgent(int(sys.argv[1]), int(sys.argv[2]), float(sys.argv[3]), float(sys.argv[4]), float(sys.argv[5]), sys.argv[6])
-	else:
+	elif len(sys.argv)==9:
 		a = Remote(int(sys.argv[1]), int(sys.argv[2]), float(sys.argv[3]), float(sys.argv[4]), float(sys.argv[5]), sys.argv[6], sys.argv[7])
 		a.load(sys.argv[8])
+		a.start()
+	else:
+		a = RemoteOptions(int(sys.argv[1]), int(sys.argv[2]), int(sys.argv[3]), float(sys.argv[4]), float(sys.argv[5]), float(sys.argv[6]), sys.argv[7], sys.argv[8])
+		a.load(sys.argv[9])
 		a.start()
 
