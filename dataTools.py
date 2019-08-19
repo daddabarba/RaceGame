@@ -71,7 +71,7 @@ if __name__ == '__main__':
 	# plt.grid()
 	# plt.savefig("all_loops.png", dpi=900)
 
-	model = EG.Model(4096, 10, 7)
+	model = EG.Model(4096, int(sys.argv[2]), 7)
 
 	for i in range(1):
 		model.addData(data[i])
