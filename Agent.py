@@ -151,6 +151,51 @@ class Remote(SarsaAgent):
 		return a
 
 
+class RemoteOptions(Remote):
+
+	def __init__(self, nStates, nOptions, nActions, alpha, gamma, T, sock, name):
+
+		super(Remote, self).__init__(nStates, nActions, alpha, gamma, T, sock, name)
+
+		self.nOptions = nOptions
+
+		self.psi = np.random.rand(nStates, nOptions)
+		self.b = np.random.rand(nStates, nOptions, nActions)
+
+		self.controller = None
+
+	def __call__(self, state):
+
+		if controller == None:
+			self.controller = super(RemoteOptions, self).__call__(state)
+		else:
+			if rand.random() <= self.psi[state]:
+				self.controller = None
+				return self(state)
+
+		return np.random.choice(self.nActions, p=self.b[state][self.controller])
+
+	def load(self, name):
+
+		eta = np.load(name+"_eta.npy")
+
+		self.QMat = np.log(eta) + 50
+
+		self.psi = np.load(name+"_psi.npy")
+		self.b = np.load(name+"_B.npy")
+
+	def dump(self, name):
+
+		eta = np.zeros((self.nStates, self.nOptions))
+
+		for s in range(len(eta))
+			eta[s] = self.softmax(s)
+
+		np.save(name+"_eta", eta)
+		np.save(name+"_psi", self.psi)
+		np.save(name+"_B", self.B)
+
+
 
 if __name__ == '__main__':
 	
