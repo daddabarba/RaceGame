@@ -189,5 +189,6 @@ class Model:
 
 	def dump(self, fname):
 
-		np.save(fname+"_A", self.a)
+		np.save(fname+"_psi", self.psi)
+		np.save(fname+"_eta", self.eta)
 		np.save(fname+"_B", self.b)
