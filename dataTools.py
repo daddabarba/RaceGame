@@ -73,7 +73,7 @@ if __name__ == '__main__':
 
 	model = EG.Model(4096, int(sys.argv[2]), 7)
 
-	for i in range(1):
+	for i in range(3):
 		model.addData(data[i])
 
 	print("Forward:\n", model.getForward())
@@ -92,13 +92,16 @@ if __name__ == '__main__':
 	print("\n----------------------------------------------\n")
 
 	model.Start()
+	nSteps = 1
 
 	while(True):
-		b = input("")
+		nSteps = int(input("("+str(nSteps)+") : ") or str(nSteps))
 
-		if b=="0":
+		if nSteps<=0:
 			break
-		print("Likelihood: ", model.Step())
+
+		for i in range(nSteps):
+			print("Likelihood: ", model.Step())
 
 
 	name = input("save in: ")
