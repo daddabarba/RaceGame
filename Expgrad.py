@@ -10,7 +10,7 @@ class Model:
 
 		self.eta = np.random.rand(n_states, n_options)
 		self.psi = np.random.rand(n_states, n_options)
-		self.pi = np.random.rand(n_options)
+		# self.pi = np.random.rand(n_options)
 		self.b = np.random.rand(n_states, n_options, n_primitives)
 
 		self.IINV = 1 - np.eye(n_options)
@@ -38,7 +38,7 @@ class Model:
 				self.b[s,o,:] = self.b[s,o,:]/sum(self.b[s,o,:])
 
 		self.eta = (self.eta.transpose()/self.eta.sum(axis=1).transpose()).transpose()
-		self.pi = self.pi/sum(self.pi)
+		# self.pi = self.pi/sum(self.pi)
 
 	# ADDING DATA
 
@@ -68,7 +68,7 @@ class Model:
 		return self.b[state]
 
 	def priors(self):
-		return self.pi
+		return self.eta[self.states[0]]
 
 
 	# FORWARD-BACKWARD PROBABILITIES
@@ -169,7 +169,7 @@ class Model:
 		self.b = (numB.transpose()/denB.transpose()).transpose()
 
 		# Update priors
-		self.pi = self.gamma[1]
+		# self.pi = self.gamma[1]
 
 	def Start(self):
 
