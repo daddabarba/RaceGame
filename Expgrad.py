@@ -107,14 +107,16 @@ class Model:
 
 	def getOccurence(self):
 
-		self.gamma = self.alpha*self.beta
-		self.gamma /= np.diag(self.alpha.dot(self.beta.transpose())).sum()
+		# self.gamma = self.alpha*self.beta
+		# self.gamma /= np.diag(self.alpha.dot(self.beta.transpose())).sum()
+
+		self.gamma = self.xi.sum(axis=2)
 
 		return self.gamma
 
 	def getCoOccurrence(self):
 
-		norm = np.diag(self.alpha.dot(self.beta.transpose()))
+		# norm = np.diag(self.alpha.dot(self.beta.transpose()))
 
 		for t in range(1, len(self.alpha)):
 
@@ -122,7 +124,9 @@ class Model:
 			transitionP = self.A(self.states[t])*margins
 
 			self.xi[t] = self.B(self.states[t])[:,self.prim[t]]*transitionP
-			self.xi[t] /= norm[t]
+			# self.xi[t] /= norm[t]
+
+			self.xi[t] /= self.xi[t].sum()
 
 		return self.xi
 
@@ -133,8 +137,8 @@ class Model:
 		self.getForward()
 		self.getBackward()
 
-		self.getOccurence()
 		self.getCoOccurrence()
+		self.getOccurence()
 
 	def MStep(self):
 
@@ -144,12 +148,12 @@ class Model:
 		denPsi = np.zeros((self.n_states, self.n_options)) + 1.e-07
 		denEta = np.zeros((self.n_states, self.n_options)) + 1.e-07
 
-		for t in range(self.T-1):
+		for t in range(1, self.T):
 			numPsi[self.states[t]] += self.xi[t].sum(axis=1)-np.diag(self.xi[t])
-			denPsi[self.states[t+1]] += self.gamma[t]
+			denPsi[self.states[t]] += self.gamma[t]
 
 			numEta[self.states[t]] += self.xi[t].sum(axis=0)-np.diag(self.xi[t])
-			denEta[self.states[t+1]] += self.IINV.dot(self.gamma[t])
+			denEta[self.states[t]] += self.IINV.dot(self.gamma[t])
 
 		self.psi = numPsi/denPsi
 		self.eta = numEta/denEta
@@ -158,14 +162,14 @@ class Model:
 		numB = np.zeros((self.n_states, self.n_options, self.n_primitives)) + 1.e-07
 		denB = np.zeros((self.n_states, self.n_options)) + 1.e-07
 
-		for t in range(self.T):
-			numB[self.states[t], :, self.prim[t]] += self.gamma[t]
-			denB[self.states] += self.gamma[t]
+		for t in range(self.T-1):
+			numB[self.states[t], :, self.prim[t]] += self.gamma[t+1]
+			denB[self.states] += self.gamma[t+1]
 
 		self.b = (numB.transpose()/denB.transpose()).transpose()
 
 		# Update priors
-		self.pi = self.gamma[0]
+		self.pi = self.gamma[1]
 
 	def Start(self):
 
@@ -176,7 +180,7 @@ class Model:
 		self.MStep()
 		self.EStep()
 
-		self.normProbs()
+		# self.normProbs()
 
 		return self.likelihood
 
