@@ -180,7 +180,7 @@ class Model:
 		self.MStep()
 		self.EStep()
 
-		# self.normProbs()
+		self.normProbs()
 
 		return self.likelihood
 
