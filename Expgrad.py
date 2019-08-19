@@ -9,9 +9,11 @@ class Model:
 		self.n_primitives = n_primitives
 
 		self.eta = np.random.rand(n_states, n_options)
-		self.phi = np.random.rand(n_states, n_options)
+		self.psi = np.random.rand(n_states, n_options)
 		self.pi = np.random.rand(n_options)
 		self.b = np.random.rand(n_states, n_options, n_primitives)
+
+		self.IINV = 1 - np.eye(n_options)
 
 		self.states = []
 		self.prim = []
@@ -27,14 +29,15 @@ class Model:
 		self.T = 0
 
 		# normalize probabilities
-		for s in range(n_states):
+		self.normProbs()
 
-			for o in range(n_options):
-				# self.a[s,o,:] = self.a[s,o,:]/sum(self.a[s,o,:])
+	def normProbs(self):
+
+		for s in range(self.n_states):
+			for o in range(self.n_options):
 				self.b[s,o,:] = self.b[s,o,:]/sum(self.b[s,o,:])
 
-			self.eta[s] = self.eta[s]/np.sum(self.eta[s])
-
+		self.eta = (self.eta.transpose()/self.eta.sum(axis=1).transpose()).transpose()
 		self.pi = self.pi/sum(self.pi)
 
 	# ADDING DATA
@@ -57,8 +60,8 @@ class Model:
 	# MODEL QUERIES
 
 	def A(self, state):
-		m = self.phi[state].reshape(self.n_options,1).dot(self.eta[state].reshape(1,self.n_options))
-		np.fill_diagonal(m, 1-self.phi[state])
+		m = self.psi[state].reshape(self.n_options,1).dot(self.eta[state].reshape(1,self.n_options))
+		np.fill_diagonal(m, 1-self.psi[state])
 		return m
 
 	def B(self, state):
@@ -105,26 +108,21 @@ class Model:
 	def getOccurence(self):
 
 		self.gamma = self.alpha*self.beta
+		self.gamma /= np.diag(self.alpha.dot(self.beta.transpose())).sum()
 
-		norm = 1/np.sum(self.gamma, axis=1)
-		norm[~np.isfinite(norm)] = 0
-
-		self.gamma = (self.gamma.transpose()*norm).transpose()
 		return self.gamma
 
 	def getCoOccurrence(self):
+
+		norm = np.diag(self.alpha.dot(self.beta.transpose()))
 
 		for t in range(1, len(self.alpha)):
 
 			margins = self.alpha[t-1].transpose().dot(self.beta[t])
 			transitionP = self.A(self.states[t])*margins
 
-			unnormed = self.B(self.states[t])[:,self.prim[t]]*transitionP
-
-			norm = 1 / np.sum(unnormed, axis=1)
-			norm[~np.isfinite(norm)] = 0
-
-			self.xi[t] = (unnormed.transpose()*norm).transpose()
+			self.xi[t] = self.B(self.states[t])[:,self.prim[t]]*transitionP
+			self.xi[t] /= norm[t]
 
 		return self.xi
 
@@ -141,19 +139,20 @@ class Model:
 	def MStep(self):
 
 		# Update transition probabilities
-		numPhi = np.zeros((self.n_states, self.n_options)) + 1.e-07
-		denPhi = np.zeros((self.n_states, self.n_options)) + 1.e-07
+		numPsi = np.zeros((self.n_states, self.n_options)) + 1.e-07
+		numEta = np.zeros((self.n_states, self.n_options)) + 1.e-07
+		denPsi = np.zeros((self.n_states, self.n_options)) + 1.e-07
+		denEta = np.zeros((self.n_states, self.n_options)) + 1.e-07
 
-		for t in range(1, self.T):
-			numPhi[self.states[t-1]] += self.xi[t].sum(axis=1)-np.diag(self.xi[t])
-			denPhi[self.states[t]] += self.gamma[t]
+		for t in range(self.T-1):
+			numPsi[self.states[t]] += self.xi[t].sum(axis=1)-np.diag(self.xi[t])
+			denPsi[self.states[t+1]] += self.gamma[t]
 
-		self.phi = numPhi/denPhi
+			numEta[self.states[t]] += self.xi[t].sum(axis=0)-np.diag(self.xi[t])
+			denEta[self.states[t+1]] += self.IINV.dot(self.gamma[t])
 
-		norm = 1 / np.sum(numPhi, axis=1)
-		norm[~np.isfinite(norm)] = 0
-
-		self.eta = (numPhi.transpose()*norm).transpose()
+		self.psi = numPsi/denPsi
+		self.eta = numEta/denEta
 
 		# Update observation probabilities
 		numB = np.zeros((self.n_states, self.n_options, self.n_primitives)) + 1.e-07
@@ -165,9 +164,8 @@ class Model:
 
 		self.b = (numB.transpose()/denB.transpose()).transpose()
 
-		self.pi = self.eta[self.states[0]]
-
-		# self.pi = self.gamma[0]
+		# Update priors
+		self.pi = self.gamma[0]
 
 	def Start(self):
 
@@ -177,6 +175,8 @@ class Model:
 
 		self.MStep()
 		self.EStep()
+
+		self.normProbs()
 
 		return self.likelihood
 
