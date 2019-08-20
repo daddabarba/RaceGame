@@ -193,7 +193,7 @@ class RemoteOptions(Remote):
 
 		np.save(name+"_eta", eta)
 		np.save(name+"_psi", self.psi)
-		np.save(name+"_B", self.B)
+		np.save(name+"_B", self.b)
 
 
 
